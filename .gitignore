@@ -1,0 +1,28 @@
+# Node
+node_modules/
+dist/
+build/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env/
+
+# Environments & Secrets
+.env
+.env.*
+!.env.example
+firebase-service-account.json
+prepmate.db
+
+# Uploads
+uploads/
+backend/uploads/
+
+# OS
+.DS_Store
+Thumbs.db
