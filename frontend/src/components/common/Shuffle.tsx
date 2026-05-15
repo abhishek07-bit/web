@@ -42,7 +42,7 @@ const Shuffle: React.FC<ShuffleProps> = ({
   maxDelay = 0,
   ease = 'power3.out',
   threshold = 0.1,
-  rootMargin = '-100px',
+  rootMargin = '0px',
   tag = 'span',
   textAlign = 'left',
   onShuffleComplete,

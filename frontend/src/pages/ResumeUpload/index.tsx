@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { Upload, FolderOpen, Sparkles, Brain, Briefcase, FileText, Trash2, CheckCircle, Loader2, Volume2, VolumeX, BarChart3, Target, AlertTriangle, Shield, ChevronRight, ExternalLink, Link2 } from 'lucide-react';
+import { Upload, Sparkles, Briefcase, Trash2, CheckCircle, Loader2, Volume2, VolumeX, BarChart3, Target, AlertTriangle, Shield, ChevronRight, ExternalLink, Link2, Zap, ShieldCheck, Target as TargetIcon } from 'lucide-react';
 import { resumeAPI } from '../../api/client';
 import { useResumeStore } from '../../store/resumeStore';
 
 export default function ResumeUploadPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { 
-    id, file, parsedData, analysis, matchAnalysis, isUploading, isAnalyzing, isMatching,
+    id, file, analysis, matchAnalysis, isUploading, isAnalyzing, isMatching,
     setResumeId, setFile, setParsedData, setAnalysis, setMatchAnalysis, setUploading, setAnalyzing, setMatching, clearResume 
   } = useResumeStore();
   
@@ -89,14 +89,13 @@ export default function ResumeUploadPage() {
     if (!id) return;
     setAnalyzing(true);
     setError(null);
-    setAnalyzingStep('Extracting text structure...');
+    setAnalyzingStep('Extracting structure...');
     
-    // Simulate steps
     const stepInterval = setInterval(() => {
       setAnalyzingStep(prev => 
-        prev === 'Extracting text structure...' ? 'Analyzing ATS compatibility...' : 
-        prev === 'Analyzing ATS compatibility...' ? 'Evaluating impact & brevity...' :
-        'Finalizing intelligence report...'
+        prev === 'Extracting structure...' ? 'ATS Audit...' : 
+        prev === 'ATS Audit...' ? 'Evaluating Impact...' :
+        'Finalizing Report...'
       );
     }, 2500);
 
@@ -108,8 +107,7 @@ export default function ResumeUploadPage() {
     } catch (err: any) {
       clearInterval(stepInterval);
       setAnalyzingStep(null);
-      console.error('Analysis failed:', err);
-      setError(err.response?.data?.detail || 'Analysis failed. Please try again.');
+      setError(err.response?.data?.detail || 'Analysis failed.');
     } finally {
       setAnalyzing(false);
     }
@@ -123,8 +121,7 @@ export default function ResumeUploadPage() {
       const { data } = await resumeAPI.match(id, jobDescription);
       setMatchAnalysis(data);
     } catch (err: any) {
-      console.error('Matching failed:', err);
-      setError(err.response?.data?.detail || 'Matching failed. Please try again.');
+      setError(err.response?.data?.detail || 'Matching failed.');
     } finally {
       setMatching(false);
     }
@@ -152,46 +149,57 @@ export default function ResumeUploadPage() {
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-500';
-    if (score >= 60) return 'text-yellow-500';
-    return 'text-error';
-  };
-
-  const getKillRatioColor = (prob: number) => {
-    if (prob >= 70) return 'text-error';
-    if (prob >= 40) return 'text-yellow-500';
-    return 'text-green-500';
+    if (score >= 60) return 'text-amber-500';
+    return 'text-red-500';
   };
 
   return (
-    <>
-      <header className="mb-xl max-w-3xl animate-fade-in">
-        <h2 className="font-display text-display text-primary mb-sm">Resume Intelligence</h2>
-        <p className="font-body-md text-body-md text-secondary">
-          Upload your resume for a ruthless audit, LaTeX structure check, and job-specific "Kill-Ratio" analysis.
+    <div className="max-w-7xl mx-auto w-full px-6 pb-20 animate-fade-in">
+      
+      {/* HUD Header */}
+      <header className="pt-12 mb-16 space-y-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-label-bold text-[10px] uppercase tracking-[0.2em]">
+          <BarChart3 size={14} />
+          Strategic Intelligence
+        </div>
+        <h1 className="font-display text-5xl md:text-6xl font-bold text-primary tracking-tight">
+          Career <span className="text-secondary">Audit.</span>
+        </h1>
+        <p className="font-body-lg text-secondary text-xl max-w-2xl leading-relaxed">
+          Ruthless AI-driven analysis of your resume architecture, impact metrics, and job-specific kill ratios.
         </p>
       </header>
 
-      <div className="flex flex-col lg:flex-row gap-lg items-start animate-slide-up">
-        {/* Left Column: Upload & Job Context */}
-        <section className="w-full lg:w-5/12 flex flex-col gap-md flex-shrink-0">
-          {/* Upload Zone */}
-          <div className="w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Operations Panel */}
+        <section className="lg:col-span-4 space-y-6">
+          
+          {/* Upload Matrix */}
+          <div className="glass rounded-[32px] p-8 shadow-premium group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+            
+            <h3 className="font-label-bold text-xs text-secondary uppercase tracking-widest mb-6 flex items-center gap-2">
+              <Upload size={14} /> Document Entry
+            </h3>
+
             {file && !isUploading ? (
-              <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-lg">
-                <div className="flex items-center gap-md mb-md">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <CheckCircle size={20} className="text-primary" strokeWidth={1.5} />
+              <div className="space-y-6">
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-surface-container-high border border-outline-variant/30">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <CheckCircle size={20} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-label-bold text-label-bold text-primary truncate">{file.name}</p>
-                    <p className="font-label-sm text-label-sm text-secondary">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
+                    <p className="font-label-bold text-sm text-primary truncate">{file.name}</p>
+                    <p className="text-[10px] text-secondary uppercase font-bold tracking-tighter">{(file.size / 1024 / 1024).toFixed(1)} MB • Verified</p>
                   </div>
-                  <button onClick={handleRemove} className="w-8 h-8 flex items-center justify-center rounded-full text-error hover:bg-error-container transition-colors">
-                    <Trash2 size={16} strokeWidth={1.5} />
+                  <button onClick={handleRemove} className="text-outline hover:text-red-500 transition-colors">
+                    <Trash2 size={18} />
                   </button>
                 </div>
-                <button onClick={() => fileInputRef.current?.click()} className="w-full bg-surface-container-lowest border border-outline-variant text-primary font-label-bold text-label-sm py-sm rounded-btn hover:bg-surface-container transition-colors">
-                  Replace File
+                <button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full bg-primary text-on-primary font-display font-bold py-4 rounded-2xl shadow-lg shadow-primary/20 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                  {isAnalyzing ? <Loader2 size={20} className="animate-spin" /> : <Sparkles size={20} />}
+                  {isAnalyzing ? (analyzingStep || 'Auditing...') : 'Start Deep Audit'}
                 </button>
               </div>
             ) : (
@@ -200,283 +208,191 @@ export default function ResumeUploadPage() {
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-pebble p-xl flex flex-col items-center justify-center text-center min-h-[220px] transition-all cursor-pointer group ${
-                  dragOver ? 'border-primary bg-primary/5' : 'border-outline-variant bg-surface-container-low hover:border-primary'
+                className={`border-2 border-dashed rounded-[32px] p-10 flex flex-col items-center justify-center text-center transition-all cursor-pointer group ${
+                  dragOver ? 'border-primary bg-primary/5' : 'border-outline-variant/40 bg-surface-container-lowest hover:border-primary/50'
                 }`}
               >
                 {isUploading ? (
-                  <>
-                    <Loader2 size={32} className="text-primary animate-spin mb-md" />
-                    <p className="font-label-bold text-label-bold text-primary">Uploading...</p>
-                  </>
+                  <div className="space-y-4">
+                    <Loader2 size={40} className="text-primary animate-spin" />
+                    <p className="font-label-bold text-xs text-primary uppercase tracking-widest">Uploading Neural Data...</p>
+                  </div>
                 ) : (
-                  <>
-                    <div className="bg-surface border border-outline-variant rounded-full p-3 mb-md group-hover:scale-105 transition-transform">
-                      <Upload size={24} className="text-primary" strokeWidth={1.5} />
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                      <Upload size={24} className="text-primary" />
                     </div>
-                    <h3 className="font-label-bold text-label-bold text-primary mb-xs">Drop resume here</h3>
-                    <p className="font-label-sm text-label-sm text-secondary">PDF, DOCX — Max 5MB</p>
-                  </>
+                    <div>
+                      <h4 className="font-display text-lg font-bold text-primary">Initiate Upload</h4>
+                      <p className="text-[10px] text-secondary uppercase font-bold tracking-widest mt-1">PDF, DOCX • MAX 5MB</p>
+                    </div>
+                  </div>
                 )}
               </div>
             )}
+            <input ref={fileInputRef} type="file" accept=".pdf,.docx" onChange={handleInputChange} className="hidden" />
           </div>
 
-          {/* Job Description Input (Target Match) */}
-          <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-lg">
-            <h4 className="font-label-bold text-label-sm text-primary tracking-widest uppercase mb-md flex items-center gap-2">
-              <Target size={16} /> Job Match Analysis
-            </h4>
+          {/* Target Matrix */}
+          <div className="glass rounded-[32px] p-8 shadow-premium">
+            <h3 className="font-label-bold text-xs text-secondary uppercase tracking-widest mb-6 flex items-center gap-2">
+              <TargetIcon size={14} /> Mission Parameters
+            </h3>
             <textarea
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
-              placeholder="Paste Job Description / Requirements here to check your Kill-Ratio..."
-              className="w-full h-40 bg-surface-container-lowest border border-outline-variant rounded-pebble p-md font-body-sm text-body-sm text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none"
+              placeholder="Paste the Job Description to calculate your 'Kill-Ratio' for this mission..."
+              className="w-full h-48 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 font-body-sm text-sm text-primary placeholder:text-outline/50 focus:border-primary/40 outline-none transition-all resize-none custom-scrollbar"
             />
             <button
               onClick={handleMatch}
               disabled={!id || !jobDescription.trim() || isMatching}
-              className="w-full mt-md bg-primary text-on-primary font-label-bold text-label-sm py-sm rounded-btn hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+              className="w-full mt-6 bg-surface-container-highest border border-outline-variant/40 text-primary font-display font-bold py-4 rounded-2xl hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-2 disabled:opacity-30"
             >
-              {isMatching ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
-              Check Kill-Ratio
+              {isMatching ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
+              Calculate Kill-Ratio
             </button>
           </div>
-
-          {error && <p className="font-label-sm text-label-sm text-error mt-xs">{error}</p>}
-          <input ref={fileInputRef} type="file" accept=".pdf,.docx" onChange={handleInputChange} className="hidden" />
+          {error && <div className="p-4 rounded-2xl bg-red-50 text-red-600 font-label-bold text-[10px] text-center uppercase tracking-widest">{error}</div>}
         </section>
 
-        {/* Right Column: Intelligence & Kill-Ratio */}
-        <section className="w-full lg:w-7/12 flex flex-col gap-md">
-          {/* Top Scoreboard */}
-          <div className="flex items-center justify-between mb-xs px-2">
-            <h3 className="font-headline-md text-headline-md text-primary">Intelligence Report</h3>
-            {parsedData && !analysis && (
-              <button onClick={handleAnalyze} disabled={isAnalyzing} className="bg-primary text-on-primary font-label-bold text-label-sm px-4 py-2 rounded-full hover:opacity-90 flex items-center gap-2 disabled:opacity-50 min-w-40 justify-center">
-                {isAnalyzing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                {isAnalyzing ? (analyzingStep || 'Auditing...') : 'Audit Resume'}
-              </button>
-            )}
-          </div>
-
-          {analysis ? (
-            <div className="flex flex-col gap-md animate-fade-in pb-xl">
-              {/* Granular Scores (Now 4 columns) */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-sm">
-                <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-md flex flex-col items-center text-center">
-                  <h4 className="font-label-bold text-[10px] text-secondary tracking-widest uppercase mb-1">ATS Match</h4>
-                  <div className={`text-2xl font-display font-bold ${getScoreColor(analysis.atsScore)}`}>{analysis.atsScore}</div>
-                </div>
-                <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-md flex flex-col items-center text-center">
-                  <h4 className="font-label-bold text-[10px] text-secondary tracking-widest uppercase mb-1">Impact</h4>
-                  <div className={`text-2xl font-display font-bold ${getScoreColor(analysis.impactScore)}`}>{analysis.impactScore}</div>
-                </div>
-                <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-md flex flex-col items-center text-center">
-                  <h4 className="font-label-bold text-[10px] text-secondary tracking-widest uppercase mb-1">Brevity</h4>
-                  <div className={`text-2xl font-display font-bold ${getScoreColor(analysis.brevityScore)}`}>{analysis.brevityScore}</div>
-                </div>
-                <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-md flex flex-col items-center text-center">
-                  <h4 className="font-label-bold text-[10px] text-secondary tracking-widest uppercase mb-1">LaTeX Logic</h4>
-                  <div className={`text-2xl font-display font-bold ${getScoreColor(analysis.latexStructureScore)}`}>{analysis.latexStructureScore}</div>
-                </div>
+        {/* Intelligence Report Hub */}
+        <section className="lg:col-span-8 space-y-8">
+          
+          {!analysis ? (
+            <div className="py-32 text-center glass rounded-[40px] border-dashed border-outline-variant/30">
+              <Shield size={48} className="mx-auto text-outline/30 mb-6" />
+              <p className="font-display text-xl text-secondary">Neural profile pending upload.</p>
+              <p className="text-[10px] text-outline uppercase tracking-[0.2em] mt-2 font-bold">Awaiting secure data entry</p>
+            </div>
+          ) : (
+            <div className="space-y-8 animate-fade-in">
+              
+              {/* Score Matrix */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'ATS Match', val: analysis.atsScore },
+                  { label: 'Impact', val: analysis.impactScore },
+                  { label: 'Brevity', val: analysis.brevityScore },
+                  { label: 'LaTeX Structure', val: analysis.latexStructureScore }
+                ].map((s, i) => (
+                  <div key={i} className="glass rounded-[24px] p-6 text-center shadow-sm">
+                    <p className="text-[9px] font-label-bold text-secondary uppercase tracking-[0.2em] mb-2">{s.label}</p>
+                    <p className={`font-display text-3xl font-bold ${getScoreColor(s.val)}`}>{s.val}</p>
+                  </div>
+                ))}
               </div>
 
-              {/* Kill-Ratio Results (Conditional) */}
+              {/* Kill-Ratio HUD */}
               {matchAnalysis && (
-                <div className="bg-surface-container-highest border-2 border-primary/20 rounded-pebble p-lg animate-scale-in">
-                  <div className="flex items-center justify-between mb-lg">
-                    <div>
-                      <h4 className="font-label-bold text-label-sm text-primary tracking-widest uppercase flex items-center gap-2">
-                        <AlertTriangle size={16} className="text-error" /> Kill-Ratio Analysis
-                      </h4>
-                      <p className="font-body-sm text-[12px] text-secondary mt-1">Based on provided Job Description</p>
+                <div className="glass rounded-[40px] p-10 border-2 border-primary/20 relative overflow-hidden group shadow-premium animate-scale-in">
+                  <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
+                    <div className="text-center md:text-left space-y-2">
+                      <div className="inline-flex items-center gap-2 text-red-500 font-label-bold text-[10px] uppercase tracking-[0.2em]">
+                        <AlertTriangle size={14} /> Mission Threat Level
+                      </div>
+                      <h3 className="font-display text-3xl font-bold text-primary italic">"{matchAnalysis.killRatioVerdict}"</h3>
                     </div>
-                    <div className="text-right">
-                      <div className={`text-4xl font-display font-bold leading-none ${getKillRatioColor(matchAnalysis.rejectionProbability)}`}>
+                    <div className="shrink-0 text-center">
+                      <div className={`font-display text-6xl font-bold leading-none ${matchAnalysis.rejectionProbability >= 70 ? 'text-red-500' : 'text-amber-500'}`}>
                         {matchAnalysis.rejectionProbability}%
                       </div>
-                      <p className="font-label-bold text-[10px] text-secondary uppercase mt-1">Rejection Prob.</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-md mb-md">
-                    <p className="font-label-bold text-label-sm text-primary italic leading-relaxed text-center">
-                      "{matchAnalysis.killRatioVerdict}"
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                    <div>
-                      <h5 className="font-label-bold text-[11px] text-error uppercase mb-sm">Top Rejection Reasons</h5>
-                      <ul className="flex flex-col gap-2">
-                        {matchAnalysis.topRejectionReasons.map((reason: string, i: number) => (
-                          <li key={i} className="flex gap-2 font-body-sm text-[12px] text-primary">
-                            <span className="text-error mt-1 flex-shrink-0">•</span> {reason}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div>
-                      <h5 className="font-label-bold text-[11px] text-primary uppercase mb-sm">Gap Report & Fixes</h5>
-                      <div className="flex flex-col gap-sm">
-                        {matchAnalysis.gapReport.map((gap: any, i: number) => (
-                          <div key={i} className="bg-surface-container-lowest p-xs rounded border border-outline-variant/30">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="font-label-bold text-[10px] text-primary">{gap.missingSkill}</span>
-                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${gap.importance === 'High' ? 'bg-error/10 text-error' : 'bg-yellow-500/10 text-yellow-600'}`}>{gap.importance} Priority</span>
-                            </div>
-                            <p className="text-[10px] text-secondary flex items-center gap-1"><ChevronRight size={10} /> {gap.fixAction}</p>
-                          </div>
-                        ))}
-                      </div>
+                      <p className="text-[10px] font-label-bold text-secondary uppercase tracking-widest mt-2">Kill-Ratio Probability</p>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Regular Analysis Sections */}
-              <div className="bg-error/5 border border-error/20 rounded-pebble p-lg">
-                <h4 className="font-label-bold text-label-sm text-error tracking-widest uppercase flex items-center gap-2 mb-md">
-                  <Trash2 size={16} /> Critical Fixes Required
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-sm">
-                  {analysis.criticalFixes?.map((fix: string, i: number) => (
-                    <div key={i} className="bg-surface-container-lowest border border-error/10 p-sm rounded-lg flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-full bg-error text-on-error flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">{i+1}</span>
-                      <p className="font-label-bold text-[12px] text-primary leading-tight">{fix}</p>
-                    </div>
-                  ))}
+              {/* Technical Audit Sections */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="glass rounded-[32px] p-8 border-red-500/10">
+                  <h4 className="font-label-bold text-xs text-red-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <AlertTriangle size={14} /> Critical Weaknesses
+                  </h4>
+                  <ul className="space-y-4">
+                    {analysis.weaknesses.map((w, i) => (
+                      <li key={i} className="flex gap-3 text-sm text-primary">
+                        <span className="text-red-500 font-bold">•</span> {w}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="glass rounded-[32px] p-8 border-green-500/10">
+                  <h4 className="font-label-bold text-xs text-green-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <CheckCircle size={14} /> Core Strengths
+                  </h4>
+                  <ul className="space-y-4">
+                    {analysis.strengths.map((s, i) => (
+                      <li key={i} className="flex gap-3 text-sm text-primary">
+                        <span className="text-green-500 font-bold">•</span> {s}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
 
-              <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-lg relative overflow-hidden group">
-                <div className="flex items-center justify-between mb-sm">
-                  <h4 className="font-label-bold text-label-sm text-primary tracking-widest uppercase flex items-center gap-2">
-                    <Sparkles size={14} /> Ruthless Evaluation
+              {/* Assessment Card */}
+              <div className="glass rounded-[40px] p-10 relative overflow-hidden shadow-premium">
+                <div className="flex justify-between items-center mb-8 relative z-10">
+                  <h4 className="font-display text-2xl font-bold text-primary flex items-center gap-2">
+                    <Sparkles size={24} className="text-primary" /> Ruthless Assessment
                   </h4>
-                  <button onClick={toggleSpeech} className={`p-2 rounded-full transition-colors ${isSpeaking ? 'bg-primary text-on-primary shadow-lg animate-pulse' : 'bg-surface-container hover:bg-surface-container-high text-secondary'}`}>
-                    {isSpeaking ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                  <button onClick={toggleSpeech} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isSpeaking ? 'bg-primary text-on-primary animate-pulse' : 'bg-surface-container-high text-secondary hover:text-primary'}`}>
+                    {isSpeaking ? <VolumeX size={20} /> : <Volume2 size={20} />}
                   </button>
                 </div>
-                <p className="font-body-md text-body-md text-secondary leading-relaxed relative z-10 italic">"{analysis.overallSummary}"</p>
+                <p className="font-body-lg text-secondary text-lg leading-relaxed relative z-10 italic">
+                  "{analysis.overallSummary}"
+                </p>
               </div>
 
-              {/* Strengths & Weaknesses */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-lg">
-                  <h4 className="font-label-bold text-label-sm text-green-500 tracking-widest uppercase mb-sm">Strengths</h4>
-                  <ul className="flex flex-col gap-xs list-disc list-inside">
-                    {analysis.strengths.map((str, i) => (
-                      <li key={i} className="font-body-sm text-body-sm text-primary leading-tight">{str}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-lg">
-                  <h4 className="font-label-bold text-label-sm text-error tracking-widest uppercase mb-sm">Issues Found</h4>
-                  <ul className="flex flex-col gap-xs list-disc list-inside">
-                    {analysis.weaknesses.map((weak, i) => (
-                      <li key={i} className="font-body-sm text-body-sm text-primary leading-tight">{weak}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Projects Table - High Structure */}
-              <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-lg overflow-hidden">
-                <h4 className="font-label-bold text-label-sm text-primary tracking-widest uppercase mb-md flex items-center gap-2">
-                  <Briefcase size={16} /> Project & Hyperlink Audit
+              {/* Project Intelligence Table */}
+              <div className="glass rounded-[40px] p-10 shadow-premium overflow-hidden">
+                <h4 className="font-display text-2xl font-bold text-primary mb-8 flex items-center gap-2">
+                  <Briefcase size={24} className="text-primary" /> Project Intelligence Table
                 </h4>
-                <div className="overflow-x-auto -mx-lg px-lg">
-                  <table className="w-full text-left border-collapse min-w-[600px]">
+                <div className="overflow-x-auto -mx-10 px-10">
+                  <table className="w-full text-left border-collapse min-w-[650px]">
                     <thead>
-                      <tr className="border-b border-outline-variant/30">
-                        <th className="pb-sm font-label-bold text-[10px] text-secondary uppercase">Project Name & Impact</th>
-                        <th className="pb-sm font-label-bold text-[10px] text-secondary uppercase">Stack</th>
-                        <th className="pb-sm font-label-bold text-[10px] text-secondary uppercase">GitHub</th>
-                        <th className="pb-sm font-label-bold text-[10px] text-secondary uppercase">Live Demo</th>
+                      <tr className="border-b border-outline-variant/30 text-[10px] uppercase font-bold tracking-widest text-secondary">
+                        <th className="pb-4 pr-6">Objective & Impact</th>
+                        <th className="pb-4 pr-6">Stack</th>
+                        <th className="pb-4">Artifacts</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-outline-variant/20">
+                    <tbody className="divide-y divide-outline-variant/10">
                       {analysis.projects?.map((p, i) => (
-                        <tr key={i} className="group hover:bg-surface-container-lowest transition-colors">
-                          <td className="py-md pr-md max-w-[300px]">
-                            <p className="font-label-bold text-[12px] text-primary">{p.name}</p>
-                            <p className="text-[10px] text-secondary mt-1 italic line-clamp-2">{p.impact}</p>
+                        <tr key={i} className="group hover:bg-primary/[0.02] transition-colors">
+                          <td className="py-6 pr-6 max-w-sm">
+                            <p className="font-label-bold text-sm text-primary mb-1">{p.name}</p>
+                            <p className="text-[11px] text-secondary leading-relaxed line-clamp-2">{p.impact}</p>
                           </td>
-                          <td className="py-md pr-md">
-                            <span className="text-[10px] text-primary opacity-80">{p.stack}</span>
+                          <td className="py-6 pr-6">
+                            <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-1 rounded-md">{p.stack}</span>
                           </td>
-                          <td className="py-md pr-md">
-                            {p.github && p.github !== 'Not Found' ? (
-                              <a href={p.github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline text-[10px] font-label-bold">
+                          <td className="py-6 whitespace-nowrap space-x-3">
+                            {p.github && p.github !== 'Not Found' && (
+                              <a href={p.github} target="_blank" rel="noreferrer" className="text-primary hover:underline text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 inline-flex">
                                 <Link2 size={12} /> Repo ↗
                               </a>
-                            ) : <span className="text-[10px] text-secondary opacity-30">None</span>}
-                          </td>
-                          <td className="py-md">
-                            {p.live && p.live !== 'Not Found' ? (
-                              <a href={p.live} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline text-[10px] font-label-bold">
+                            )}
+                            {p.live && p.live !== 'Not Found' && (
+                              <a href={p.live} target="_blank" rel="noreferrer" className="text-primary hover:underline text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 inline-flex">
                                 <ExternalLink size={12} /> Live ↗
                               </a>
-                            ) : <span className="text-[10px] text-secondary opacity-30">None</span>}
+                            )}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  {(!analysis.projects || analysis.projects.length === 0) && (
-                    <p className="text-center py-xl text-secondary text-body-sm italic">No project data identified.</p>
-                  )}
                 </div>
               </div>
 
-              {/* Source Links & Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-lg">
-                  <h4 className="font-label-bold text-label-sm text-primary tracking-widest uppercase mb-md flex items-center gap-2">
-                    <Link2 size={16} /> Source Links Audit
-                  </h4>
-                  <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                    {analysis.allLinksFound?.length > 0 ? analysis.allLinksFound.map((link, i) => (
-                      <div key={i} className="flex items-center gap-2 group">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary/30 group-hover:bg-primary transition-colors flex-shrink-0" />
-                        <a href={link} target="_blank" rel="noreferrer" className="font-body-sm text-[10px] text-secondary hover:text-primary truncate transition-colors">
-                          {link}
-                        </a>
-                      </div>
-                    )) : <p className="text-[11px] text-secondary italic">No URLs found.</p>}
-                  </div>
-                </div>
-
-                <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-lg">
-                  <h4 className="font-label-bold text-label-sm text-primary tracking-widest uppercase mb-md flex items-center gap-2">
-                    <BarChart3 size={16} /> Performance Metrics
-                  </h4>
-                  <div className="flex flex-wrap gap-xs">
-                    {analysis.metricsDetected?.length > 0 ? analysis.metricsDetected.map((m, i) => (
-                      <span key={i} className="bg-surface-container border border-outline-variant text-primary font-label-bold text-[9px] px-2 py-1 rounded-md">{m}</span>
-                    )) : <p className="text-[11px] text-secondary italic">No metrics detected.</p>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-lg">
-                <h4 className="font-label-bold text-label-sm text-secondary tracking-widest uppercase mb-sm">Recommended Roles</h4>
-                <div className="flex flex-wrap gap-sm mt-sm">
-                  {analysis.recommendedRoles.map((role, i) => (
-                    <span key={i} className="bg-surface-container-highest border border-outline-variant text-primary font-label-bold text-label-sm px-4 py-1.5 rounded-full">{role}</span>
-                  ))}
-                </div>
-              </div>
             </div>
-          ) : (
-             <div className="p-xl text-center text-secondary border-2 border-dashed border-outline-variant rounded-pebble">
-               Upload resume and analyze to see intelligence report.
-             </div>
           )}
         </section>
       </div>
-    </>
+    </div>
   );
 }

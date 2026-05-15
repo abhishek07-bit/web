@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Brain, Code, Globe, Clock, Play, Target, Search, Loader2, Zap, AlertCircle } from 'lucide-react';
+import { Brain, Code, Globe, Clock, Play, Target, Search, Loader2, Zap, AlertCircle, Shield, ChevronRight, Activity } from 'lucide-react';
 import { companyAPI } from '../../api/client';
 
 const iconMap: Record<string, any> = {
@@ -42,7 +42,6 @@ export default function CompanyPrepPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => {
       const trimmed = searchInput.trim();
@@ -63,8 +62,7 @@ export default function CompanyPrepPage() {
         const response = await companyAPI.getPrep(company);
         setData(response.data as CompanyPrepData);
       } catch (err: unknown) {
-        console.error('Failed to load company prep:', err);
-        setError('Failed to load preparation data. Please try again.');
+        setError('Strategic intelligence retrieval failed.');
       } finally {
         setLoading(false);
       }
@@ -81,103 +79,129 @@ export default function CompanyPrepPage() {
   };
 
   return (
-    <div className="max-w-max-width mx-auto w-full flex-1 flex flex-col px-container-padding animate-fade-in pb-xl">
+    <div className="max-w-7xl mx-auto w-full px-6 pb-20 animate-fade-in">
+      
       {/* Search Header */}
-      <header className="mb-[60px] mt-[40px] flex flex-col md:flex-row justify-between md:items-end gap-lg border-b border-outline-variant pb-lg">
-        <div>
-          <h1 className="font-display text-display text-primary mb-xs">Company Prep</h1>
-          <p className="font-body-md text-body-md text-secondary max-w-xl">
-            Enter a company name to generate a tailored interview preparation guide, focusing on their unique technical and behavioral expectations.
+      <header className="pt-12 mb-16 flex flex-col md:flex-row justify-between md:items-end gap-10">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-label-bold text-[10px] uppercase tracking-[0.2em]">
+            <Activity size={14} />
+            Strategic Dossier
+          </div>
+          <h1 className="font-display text-5xl md:text-6xl font-bold text-primary tracking-tight">
+            Target <span className="text-secondary">Intel.</span>
+          </h1>
+          <p className="font-body-lg text-secondary text-xl max-w-2xl leading-relaxed">
+            Neural mapping of company-specific interview vectors and cultural engineering benchmarks.
           </p>
         </div>
-        <form onSubmit={handleSearch} className="flex gap-sm w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" size={18} strokeWidth={1.5} />
-            <input 
-              type="text" 
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="e.g. Amazon, Netflix..." 
-              className="w-full bg-surface-container-lowest border border-outline-variant rounded-full pl-10 pr-4 py-2 font-body-md text-body-md text-on-background focus:border-primary focus:ring-0 outline-none transition-colors"
-            />
+        
+        <form onSubmit={handleSearch} className="relative w-full md:w-[400px] group">
+          <div className="absolute inset-0 bg-primary/5 rounded-[24px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative glass rounded-[24px] border border-outline-variant/30 p-2 flex gap-2">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={20} />
+              <input 
+                type="text" 
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search Target Company..." 
+                className="w-full bg-transparent pl-12 pr-4 py-3 font-display font-bold text-primary placeholder:text-outline/50 outline-none"
+              />
+            </div>
+            <button type="submit" disabled={loading || !searchInput.trim() || searchInput.trim() === company} className="bg-primary text-on-primary font-display font-bold px-8 rounded-2xl hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center">
+              {loading ? <Loader2 size={20} className="animate-spin" /> : 'Map'}
+            </button>
           </div>
-          <button type="submit" disabled={loading || !searchInput.trim() || searchInput.trim() === company} className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2 rounded-full hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2">
-            {loading ? <Loader2 size={16} className="animate-spin" /> : 'Search'}
-          </button>
         </form>
       </header>
 
       {loading ? (
-        <div className="flex-1 flex flex-col items-center justify-center min-h-[40vh]">
-          <Loader2 className="animate-spin text-primary mb-md" size={48} />
-          <p className="font-label-bold text-label-bold text-secondary">Analyzing {company}'s interview process...</p>
+        <div className="py-32 flex flex-col items-center justify-center">
+          <div className="w-20 h-20 rounded-[30px] bg-primary/10 flex items-center justify-center mb-8 shadow-inner animate-pulse">
+            <Activity className="text-primary animate-spin" size={32} />
+          </div>
+          <p className="font-display text-2xl text-secondary text-center">Infiltrating {company} databases...</p>
+          <p className="text-[10px] text-outline uppercase tracking-[0.3em] font-bold mt-2">Neural Extraction in progress</p>
         </div>
       ) : error ? (
-        <div className="flex-1 flex flex-col items-center justify-center min-h-[40vh]">
-          <p className="font-label-bold text-label-bold text-error bg-error-container px-6 py-3 rounded-full">{error}</p>
+        <div className="py-32 flex flex-col items-center justify-center">
+          <div className="p-6 rounded-[30px] bg-red-50 border border-red-100 text-red-600 font-display font-bold text-lg">
+            {error}
+          </div>
         </div>
       ) : data ? (
-        <div className="animate-slide-up">
-          <div className="flex items-center gap-md mb-lg flex-wrap">
-            <div className="inline-flex items-center gap-sm px-4 py-2 bg-primary/10 border border-primary/20 rounded-full">
-              <Target size={16} className="text-primary" strokeWidth={1.5} />
-              <span className="font-label-bold text-label-bold text-primary uppercase tracking-wider text-[11px]">{data.company} Path Active</span>
-            </div>
-            {data.isFallback && (
-              <div className="inline-flex items-center gap-sm px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
-                <AlertCircle size={16} className="text-yellow-600" strokeWidth={1.5} />
-                <span className="font-label-bold text-label-bold text-yellow-600 uppercase tracking-wider text-[11px]">Using Offline Fallback Data</span>
+        <div className="space-y-16 animate-slide-up">
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12 border-b border-outline-variant/30">
+            <div className="space-y-6 max-w-4xl">
+              <div className="flex items-center gap-3">
+                <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-full flex items-center gap-3">
+                  <Shield size={16} className="text-primary" />
+                  <span className="font-label-bold text-xs text-primary uppercase tracking-widest">{data.company} Sector Verified</span>
+                </div>
+                {data.isFallback && (
+                  <div className="px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center gap-3">
+                    <AlertCircle size={16} className="text-amber-600" />
+                    <span className="font-label-bold text-xs text-amber-600 uppercase tracking-widest">Cached Intel</span>
+                  </div>
+                )}
               </div>
-            )}
+              <h2 className="font-display text-4xl font-bold text-primary italic">"The {data.company} Protocol"</h2>
+              <p className="font-body-lg text-secondary text-xl leading-relaxed">
+                {data.description}
+              </p>
+            </div>
           </div>
-          <h2 className="font-headline-lg text-headline-lg text-primary mb-md">{data.company} Preparation Path</h2>
-          <p className="font-body-lg text-body-lg text-secondary max-w-3xl mb-xl">
-            {data.description}
-          </p>
 
-          {/* Bento Grid: Core Philosophy */}
-          <section className="grid grid-cols-1 md:grid-cols-12 gap-lg mb-[80px]">
+          {/* Core Philosophy: Premium Bento Grid */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {data.corePhilosophy?.map((card, idx) => {
               const Icon = iconMap[card.icon] || Brain;
               return (
-                <div key={idx} className="md:col-span-4 bg-surface-container-low border border-outline-variant rounded-pebble p-lg flex flex-col justify-between h-full group hover:border-primary transition-colors duration-300">
+                <div key={idx} className="glass rounded-[32px] p-10 flex flex-col justify-between group hover:bg-white/40 transition-all duration-500 shadow-premium">
                   <div>
-                    <div className="w-12 h-12 rounded-full border border-outline-variant bg-surface flex items-center justify-center mb-md">
-                      <Icon size={24} className="text-primary" strokeWidth={1.5} />
+                    <div className="w-14 h-14 rounded-[20px] bg-primary/5 border border-primary/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                      <Icon size={28} className="text-primary" />
                     </div>
-                    <h3 className="font-headline-md text-headline-md text-primary mb-sm">{card.title}</h3>
-                    <p className="font-body-md text-body-md text-secondary">{card.desc}</p>
+                    <h3 className="font-display text-2xl font-bold text-primary mb-4 tracking-tight">{card.title}</h3>
+                    <p className="font-body-md text-secondary leading-relaxed">{card.desc}</p>
+                  </div>
+                  <div className="mt-8 pt-6 border-t border-outline-variant/30 flex justify-end">
+                    <ChevronRight size={20} className="text-outline group-hover:text-primary group-hover:translate-x-2 transition-all" />
                   </div>
                 </div>
               );
             })}
           </section>
 
-          {/* Question Bank */}
-          <section>
-            <div className="flex items-end justify-between mb-lg">
-              <h2 className="font-headline-lg text-headline-lg text-primary">Targeted Scenarios</h2>
+          {/* Question Bank: Elite List */}
+          <section className="space-y-10">
+            <div className="flex items-end justify-between">
+              <h2 className="font-display text-4xl font-bold text-primary">Strategic Scenarios</h2>
+              <div className="text-[10px] font-bold text-outline uppercase tracking-widest bg-surface-container px-3 py-1 rounded-full">
+                {data.targetedScenarios?.length} Active Vectors
+              </div>
             </div>
-            <div className="flex flex-col gap-md">
+            
+            <div className="grid grid-cols-1 gap-4">
               {data.targetedScenarios?.map((question, idx) => (
-                <div key={idx} className="bg-surface border border-outline-variant rounded-pebble p-lg flex flex-col md:flex-row md:items-center justify-between gap-lg hover:border-primary transition-all duration-200 cursor-pointer">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-sm mb-sm">
-                      <span className="px-3 py-1 bg-surface-container-high rounded-full font-label-sm text-label-sm text-primary border border-outline-variant">
+                <div key={idx} className="glass rounded-[28px] p-8 flex flex-col md:flex-row md:items-center justify-between gap-8 hover:shadow-premium group transition-all duration-300">
+                  <div className="flex-1 space-y-4">
+                    <div className="flex items-center gap-4">
+                      <span className="px-3 py-1 bg-primary/5 rounded-full font-label-bold text-[10px] text-primary uppercase tracking-widest border border-primary/10">
                         {question.category}
                       </span>
-                      <span className="font-label-sm text-label-sm text-secondary flex items-center gap-xs">
-                        <Clock size={14} strokeWidth={1.5} /> {question.time}
-                      </span>
+                      <div className="flex items-center gap-2 text-outline font-label-bold text-[10px] uppercase tracking-widest">
+                        <Clock size={14} /> {question.time} Limit
+                      </div>
                     </div>
-                    <h4 className="font-headline-md text-headline-md text-primary mb-xs">{question.title}</h4>
-                    <p className="font-body-md text-body-md text-secondary line-clamp-1">{question.desc}</p>
+                    <h4 className="font-display text-xl font-bold text-primary">{question.title}</h4>
+                    <p className="font-body-md text-secondary max-w-3xl italic">"{question.desc}"</p>
                   </div>
-                  <div className="shrink-0 flex items-center gap-md">
-                    <div className="h-10 w-10 rounded-full border border-outline-variant flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-colors">
-                      <Play size={20} strokeWidth={1.5} />
-                    </div>
-                  </div>
+                  <button className="shrink-0 w-16 h-16 rounded-[24px] bg-surface-container border border-outline-variant/30 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all group-hover:shadow-lg shadow-primary/20">
+                    <Play size={24} />
+                  </button>
                 </div>
               ))}
             </div>

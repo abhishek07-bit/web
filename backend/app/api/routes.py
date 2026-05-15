@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
 from app.db.database import get_db
-from app.models.models import InterviewSession, Question, Answer, User
+from app.models.models import InterviewSession, Question, Answer, User, FeedbackReport
 from app.auth.routes import get_current_user
 from app.services import ai_service
 
@@ -43,18 +43,14 @@ async def setup_interview(
     db.refresh(session)
 
     # Generate questions using AI fallback stack
-    try:
-        ai_questions = await ai_service.generate_interview_questions(
-            role=req.role,
-            company=req.company,
-            persona=req.persona,
-            rigor_level=req.rigorLevel,
-            skills=req.skills,
-            num_questions=5,
-        )
-    except Exception as e:
-        # Use hardcoded fallback if all AI providers fail
-        ai_questions = ai_service._fallback_questions(req.role, req.company, 5)
+    ai_questions = await ai_service.generate_interview_questions(
+        role=req.role,
+        company=req.company,
+        persona=req.persona,
+        rigor_level=req.rigorLevel,
+        skills=req.skills,
+        num_questions=5,
+    )
 
     for i, q in enumerate(ai_questions):
         question = Question(
@@ -115,22 +111,19 @@ async def submit_answer(
 
     # Evaluate answer using AI
     session = db.query(InterviewSession).filter(InterviewSession.id == question.session_id).first()
-    try:
-        evaluation = await ai_service.evaluate_answer(
-            question=question.text,
-            answer=req.text,
-            role=session.role if session else "Software Engineer",
-            company=session.company if session else "Tech Company",
-        )
-    except Exception:
-        evaluation = {"score": 70, "feedback": "Response recorded.", "strengths": [], "improvements": []}
+    evaluation = await ai_service.evaluate_answer(
+        question=question.text,
+        answer=req.text,
+        role=session.role if session else "Software Engineer",
+        company=session.company if session else "Tech Company",
+    )
 
     answer = Answer(
         question_id=question_id,
         text=req.text,
         confidence=req.confidence,
         duration=req.duration,
-        score=evaluation.get("score", 70),
+        score=evaluation.get("score"),
         feedback_text=evaluation.get("feedback", ""),
     )
     db.add(answer)
@@ -159,7 +152,20 @@ async def get_feedback(
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    # Gather questions and answers
+    # 1. Check if feedback already exists in DB
+    existing_report = db.query(FeedbackReport).filter(FeedbackReport.session_id == session_id).first()
+    if existing_report:
+        return {
+            "sessionId": session_id,
+            "overallScore": existing_report.overall_score,
+            "overallAssessment": existing_report.overall_assessment,
+            "strengths": existing_report.strengths,
+            "improvements": existing_report.improvements,
+            "recommendedActions": existing_report.recommended_actions,
+            "vocalConfidenceData": existing_report.vocal_confidence_data if hasattr(existing_report, 'vocal_confidence_data') else []
+        }
+
+    # 2. Gather questions and answers for AI analysis
     questions = db.query(Question).filter(Question.session_id == session_id).order_by(Question.order_num).all()
     question_ids = [q.id for q in questions]
     answers = db.query(Answer).filter(Answer.question_id.in_(question_ids)).all()
@@ -174,15 +180,30 @@ async def get_feedback(
             "answer": answer.text if answer else "No answer provided.",
         })
 
-    # Generate AI feedback
-    try:
-        feedback = await ai_service.generate_session_feedback(
-            questions_and_answers=qa_pairs,
-            role=session.role,
-            company=session.company,
-        )
-    except Exception:
-        feedback = ai_service._fallback_feedback()
+    # 3. Generate AI feedback
+    feedback = await ai_service.generate_session_feedback(
+        questions_and_answers=qa_pairs,
+        role=session.role,
+        company=session.company,
+    )
+
+    # 4. SAVE to Database
+    new_report = FeedbackReport(
+        session_id=session_id,
+        overall_score=feedback.get("overallScore", 0),
+        overall_assessment=feedback.get("overallAssessment", ""),
+        strengths=feedback.get("strengths", []),
+        improvements=feedback.get("improvements", []),
+        recommended_actions=feedback.get("recommendedActions", []),
+        vocal_confidence_data=feedback.get("vocalConfidenceData", [])
+    )
+    db.add(new_report)
+    
+    # 5. Update Session Status and Score for Analytics
+    session.score = feedback.get("overallScore", 0)
+    session.status = "completed"
+    
+    db.commit()
 
     return {
         "sessionId": session_id,
@@ -195,27 +216,7 @@ async def get_company_prep(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    try:
-        # We can reuse ai_service to generate this, but for now we'll do a simple mock
-        # if the AI service doesn't have a specific method.
-        # Ideally, we'd add `generate_company_prep` to ai_service.
-        prep = await ai_service.generate_company_prep(company_name)
-    except Exception as e:
-        print(f"Error generating company prep: {e}")
-        # Fallback
-        prep = {
-            "company": company_name,
-            "description": f"A targeted preparation path for {company_name}.",
-            "isFallback": True,
-            "corePhilosophy": [
-                {"title": "Leadership Principles", "desc": "Focus on data-driven decision making and bias for action.", "icon": "Brain"},
-                {"title": "System Design Focus", "desc": "Expect heavy focus on scalability and high availability.", "icon": "Code"},
-                {"title": "Behavioral Expectations", "desc": "Strong emphasis on conflict resolution and cross-functional collaboration.", "icon": "Globe"}
-            ],
-            "targetedScenarios": [
-                {"title": "Design a globally distributed system.", "category": "System Design", "time": "45 mins", "desc": "Focus on synchronization strategies."},
-                {"title": "Find the longest valid sequence.", "category": "Algorithms", "time": "20 mins", "desc": "Requires dynamic programming."},
-                {"title": "Tell me about a time you failed.", "category": "Behavioral", "time": "15 mins", "desc": "Assess framing of ambiguity and learning."}
-            ]
-        }
+    # Real AI company prep guide
+    prep = await ai_service.generate_company_prep(company_name)
+    return prep
     return prep

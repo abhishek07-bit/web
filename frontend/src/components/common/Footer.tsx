@@ -1,63 +1,96 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Layers, Globe, Mail, MessageCircle } from 'lucide-react';
+import { ArrowRight, Layers, Globe, Mail, MessageCircle, Zap, ShieldCheck, Activity } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-surface-container-lowest border-t border-outline-variant mt-auto">
-      <div className="max-w-max-width mx-auto px-lg md:px-container-padding py-xl">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-xl">
-          {/* Brand */}
-          <div className="col-span-1 md:col-span-1 flex flex-col gap-md">
-            <Link to="/" className="flex items-center gap-sm group">
-              <Layers size={24} className="text-primary group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-              <span className="font-headline-md tracking-tighter text-primary font-semibold">PrepMate AI</span>
+    <footer className="w-full glass border-t border-outline-variant/30 mt-auto bg-surface/40 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-8 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
+          {/* Elite Brand Section */}
+          <div className="col-span-1 md:col-span-1 flex flex-col gap-6">
+            <Link to="/" className="flex items-center gap-4 group">
+              <div className="bg-primary p-2 rounded-xl group-hover:rotate-6 transition-transform">
+                <Zap size={20} className="text-on-primary" />
+              </div>
+              <span className="font-display text-2xl tracking-tight text-primary font-bold italic">PrepMate AI</span>
             </Link>
-            <p className="font-body-md text-label-sm text-secondary">
-              Master your tech interviews with AI-driven mock sessions, real-time feedback, and dynamic company paths.
+            <p className="font-body-md text-secondary leading-relaxed text-sm">
+              Dominating technical interviews through neural-first simulation, context-aware challenges, and sub-second feedback matrices.
             </p>
-            <div className="flex gap-md mt-sm">
-              <Link to="/about" className="text-secondary hover:text-primary transition-colors" title="About Us"><Globe size={18} strokeWidth={1.5} /></Link>
-              <Link to="/blog" className="text-secondary hover:text-primary transition-colors" title="Blog"><MessageCircle size={18} strokeWidth={1.5} /></Link>
-              <Link to="/contact" className="text-secondary hover:text-primary transition-colors" title="Contact Us"><Mail size={18} strokeWidth={1.5} /></Link>
+            <div className="flex gap-4 mt-2">
+              {[
+                { icon: Globe, label: 'Global' },
+                { icon: MessageCircle, label: 'Comms' },
+                { icon: Mail, label: 'Secure' }
+              ].map((item, i) => (
+                <Link key={i} to="#" className="w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-secondary hover:text-primary hover:bg-primary/10 transition-all">
+                  <item.icon size={18} />
+                </Link>
+              ))}
             </div>
           </div>
 
-          {/* Product */}
-          <div className="col-span-1 flex flex-col gap-sm">
-            <h4 className="font-label-bold text-label-bold text-primary mb-xs">Product</h4>
-            <Link to="/dashboard" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Dashboard</Link>
-            <Link to="/interview/setup" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Mock Interviews</Link>
-            <Link to="/company-prep" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Company Prep</Link>
-            <Link to="/resume" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Resume Upload</Link>
-          </div>
-
-          {/* Resources */}
-          <div className="col-span-1 flex flex-col gap-sm">
-            <h4 className="font-label-bold text-label-bold text-primary mb-xs">Resources</h4>
-            <Link to="/system-design" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">System Design Guide</Link>
-            <Link to="/behavioral" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Behavioral Questions</Link>
-            <Link to="/blog" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Blog</Link>
-            <Link to="/help" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Help Center</Link>
-          </div>
-
-          {/* Legal */}
-          <div className="col-span-1 flex flex-col gap-sm">
-            <h4 className="font-label-bold text-label-bold text-primary mb-xs">Legal</h4>
-            <Link to="/privacy" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Terms of Service</Link>
-            <Link to="/cookie-policy" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Cookie Policy</Link>
-          </div>
+          {/* Strategic Links */}
+          {[
+            {
+              title: 'PROTOCOL',
+              links: [
+                { label: 'Command Center', path: '/dashboard' },
+                { label: 'Tactical Practice', path: '/interview/setup' },
+                { label: 'Sector Intelligence', path: '/company-prep' },
+                { label: 'Resume Audit', path: '/resume' }
+              ]
+            },
+            {
+              title: 'RESOURCES',
+              links: [
+                { label: 'System Design', path: '#' },
+                { label: 'Behavioral Vector', path: '#' },
+                { label: 'Neural Blog', path: '#' },
+                { label: 'Help Matrix', path: '#' }
+              ]
+            },
+            {
+              title: 'LEGAL',
+              links: [
+                { label: 'Privacy Protocol', path: '#' },
+                { label: 'Terms of Engagement', path: '#' },
+                { label: 'Cookie Registry', path: '#' }
+              ]
+            }
+          ].map((column) => (
+            <div key={column.title} className="col-span-1 flex flex-col gap-5">
+              <h4 className="font-label-bold text-[10px] text-primary uppercase tracking-[0.3em] mb-2">{column.title}</h4>
+              {column.links.map((link) => (
+                <Link key={link.label} to={link.path} className="font-label-bold text-xs text-secondary hover:text-primary transition-all hover:translate-x-1 inline-block">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ))}
         </div>
 
-        <div className="mt-xl pt-lg border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-md">
-          <p className="font-label-sm text-label-sm text-secondary">
-            © {new Date().getFullYear()} PrepMate AI. All rights reserved.
-          </p>
-          <div className="flex gap-lg items-center">
-            <Link to="/careers" className="font-label-sm text-[11px] text-secondary hover:text-primary transition-colors">Careers</Link>
-            <span className="font-label-sm text-[11px] text-secondary flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-500 inline-block" /> All systems operational
-            </span>
+        {/* Tactical Status Bar */}
+        <div className="mt-20 pt-8 border-t border-outline-variant/20 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <p className="font-label-bold text-[10px] text-outline uppercase tracking-[0.2em]">
+              © {new Date().getFullYear()} PREPMATE AI. CORE_STABLE_V2.0
+            </p>
+            <div className="hidden md:block w-px h-3 bg-outline-variant/30" />
+            <Link to="#" className="font-label-bold text-[10px] text-secondary hover:text-primary uppercase tracking-[0.2em] transition-all">
+              OPERATIONAL_CAREERS
+            </Link>
+          </div>
+          
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-3 px-4 py-2 rounded-full glass border-primary/20">
+              <Activity size={14} className="text-green-500 animate-pulse" />
+              <span className="font-label-bold text-[10px] text-primary uppercase tracking-[0.3em]">Neural Stack: Optimal</span>
+            </div>
+            <div className="flex items-center gap-3 px-4 py-2 rounded-full glass border-outline-variant/30">
+              <ShieldCheck size={14} className="text-primary" />
+              <span className="font-label-bold text-[10px] text-outline uppercase tracking-[0.3em]">SSL_ENCRYPTED_LINK</span>
+            </div>
           </div>
         </div>
       </div>

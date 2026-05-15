@@ -312,19 +312,16 @@ Return a JSON array where each item has:
 Return ONLY the JSON array, no other text."""
 
     result = await generate(prompt, SYSTEM_PROMPT_INTERVIEWER, temperature=0.8)
-    try:
-        # Strip markdown code fences if present
-        text = result.text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
-            if text.endswith("```"):
-                text = text[:-3]
-            text = text.strip()
-        questions = json.loads(text)
-        return questions if isinstance(questions, list) else []
-    except json.JSONDecodeError:
-        logger.error(f"Failed to parse AI response as JSON: {result.text[:200]}")
-        return _fallback_questions(role, company, num_questions)
+    # Strip markdown code fences if present
+    text = result.text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        text = text.strip()
+    
+    questions = json.loads(text)
+    return questions if isinstance(questions, list) else []
 
 
 async def evaluate_answer(
@@ -340,7 +337,7 @@ Question: {question}
 Candidate's Answer: {answer}
 
 Return a JSON object with:
-- "score": integer 0-100
+- "score": integer 0-100 (Be critical. 90+ is for perfect, senior-level answers. 50-70 is for average. <40 is for poor answers.)
 - "feedback": a 2-3 sentence evaluation
 - "strengths": array of 1-3 strength points
 - "improvements": array of 1-3 improvement suggestions
@@ -348,16 +345,21 @@ Return a JSON object with:
 Return ONLY the JSON object."""
 
     result = await generate(prompt, SYSTEM_PROMPT_EVALUATOR, temperature=0.4)
+    text = result.text.strip()
+    
     try:
-        text = result.text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
-            if text.endswith("```"):
-                text = text[:-3]
-            text = text.strip()
+        # Robust JSON extraction: Find the first '{' and last '}'
+        start_idx = text.find('{')
+        end_idx = text.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            json_str = text[start_idx:end_idx + 1]
+            return json.loads(json_str)
+        
+        # If no braces found, try raw parse
         return json.loads(text)
     except json.JSONDecodeError:
-        return {"score": 70, "feedback": "Response recorded.", "strengths": [], "improvements": []}
+        logger.error(f"Failed to parse AI evaluation JSON. Raw text: {text}")
+        raise AIProviderError("all", f"AI returned invalid JSON: {text[:100]}")
 
 
 async def generate_session_feedback(
@@ -376,7 +378,7 @@ async def generate_session_feedback(
 {qa_text}
 
 Return a JSON object with:
-- "overallScore": integer 0-100
+- "overallScore": integer 0-100 (Calculate this based on individual answers, rigor level, and communication quality. Be realistic, not generous.)
 - "overallAssessment": 2-3 sentence overall evaluation
 - "strengths": array of objects with "title" and "description" (3 items)
 - "improvements": array of objects with "title" and "description" (3 items)
@@ -386,16 +388,20 @@ Return a JSON object with:
 Return ONLY the JSON object."""
 
     result = await generate(prompt, SYSTEM_PROMPT_EVALUATOR, temperature=0.5)
+    text = result.text.strip()
+    
     try:
-        text = result.text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
-            if text.endswith("```"):
-                text = text[:-3]
-            text = text.strip()
+        # Robust JSON extraction
+        start_idx = text.find('{')
+        end_idx = text.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            json_str = text[start_idx:end_idx + 1]
+            return json.loads(json_str)
+            
         return json.loads(text)
     except json.JSONDecodeError:
-        return _fallback_feedback()
+        logger.error(f"Failed to parse session feedback JSON. Raw text: {text}")
+        raise AIProviderError("all", f"AI failed to generate session feedback: {text[:100]}")
 
 async def analyze_resume(resume_text: str) -> dict:
     """Analyze a resume and provide ruthless, hyper-comprehensive feedback including LaTeX checks."""
@@ -510,41 +516,3 @@ Return ONLY the JSON object."""
         raise AIProviderError("all", "Failed to parse company prep JSON")
 
 
-def _fallback_questions(role: str, company: str, num: int) -> list[dict]:
-    """Hardcoded fallback when AI completely fails."""
-    templates = [
-        {"category": "Behavioral", "text": f"Tell me about a time you demonstrated leadership in a {role} context.", "sub_prompt": "Use the STAR method.", "time_limit": 300},
-        {"category": "Technical", "text": f"Design a scalable system relevant to {company}'s core product.", "sub_prompt": "Focus on trade-offs and scalability.", "time_limit": 600},
-        {"category": "System Design", "text": "How would you design a real-time notification system?", "sub_prompt": "Consider push vs pull models.", "time_limit": 600},
-        {"category": "Algorithms", "text": "Describe an efficient algorithm for finding the k-th largest element.", "sub_prompt": "Discuss time complexity.", "time_limit": 300},
-        {"category": "Behavioral", "text": "Describe a situation where you had to make a decision with incomplete information.", "sub_prompt": "Focus on your decision framework.", "time_limit": 300},
-    ]
-    return templates[:num]
-
-
-def _fallback_feedback() -> dict:
-    return {
-        "overallScore": 75,
-        "overallAssessment": "Your responses demonstrated solid technical understanding with room for improvement in communication clarity.",
-        "strengths": [
-            {"title": "Technical Knowledge", "description": "Showed strong understanding of core concepts."},
-            {"title": "Problem Approach", "description": "Systematic approach to problem decomposition."},
-            {"title": "Communication", "description": "Clear and concise verbal delivery."},
-        ],
-        "improvements": [
-            {"title": "Depth of Analysis", "description": "Could explore edge cases more thoroughly."},
-            {"title": "Time Management", "description": "Some answers exceeded the suggested time limit."},
-            {"title": "Specificity", "description": "Use more concrete examples from past experience."},
-        ],
-        "recommendedActions": [
-            {"title": "System Design Fundamentals", "link": "#"},
-            {"title": "Behavioral Interview Practice", "link": "#"},
-        ],
-        "vocalConfidenceData": [
-            {"label": "Intro", "value": 70},
-            {"label": "Technical Q1", "value": 60},
-            {"label": "Behavioral", "value": 80},
-            {"label": "System Design", "value": 55},
-            {"label": "Closing", "value": 75},
-        ],
-    }

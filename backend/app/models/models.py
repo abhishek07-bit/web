@@ -101,6 +101,7 @@ class FeedbackReport(Base):
     strengths = Column(JSON, default=list)
     improvements = Column(JSON, default=list)
     recommended_actions = Column(JSON, default=list)
+    vocal_confidence_data = Column(JSON, default=list)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     session = relationship("InterviewSession", back_populates="feedback")

@@ -81,9 +81,20 @@ async def startup():
 
     # Init Firebase
     service_account_path = "firebase-service-account.json"
+    service_account_env = os.getenv("FIREBASE_SERVICE_ACCOUNT")
+
     if os.path.exists(service_account_path):
         cred = credentials.Certificate(service_account_path)
         firebase_admin.initialize_app(cred)
-        print("[PrepMate] Firebase Admin initialized.")
+        print("[PrepMate] Firebase Admin initialized from file.")
+    elif service_account_env:
+        import json
+        try:
+            service_account_info = json.loads(service_account_env)
+            cred = credentials.Certificate(service_account_info)
+            firebase_admin.initialize_app(cred)
+            print("[PrepMate] Firebase Admin initialized from environment variable.")
+        except Exception as e:
+            print(f"[PrepMate] Failed to initialize Firebase from environment variable: {e}")
     else:
         print("[PrepMate] Firebase Service Account not found. Firebase auth disabled.")

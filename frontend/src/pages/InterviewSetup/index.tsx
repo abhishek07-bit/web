@@ -1,15 +1,25 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, Brain, SlidersHorizontal, Search, Building, Play, BarChart3, Gavel, Handshake, Loader2 } from 'lucide-react';
+import { Brain, SlidersHorizontal, Search, Building, BarChart3, Gavel, Handshake, Loader2, Target, Zap, ChevronRight, Activity, ShieldAlert } from 'lucide-react';
 import { useInterviewStore } from '../../store/interviewStore';
 import { interviewAPI } from '../../api/client';
+
+const POPULAR_ROLES = [
+  'Software Engineer', 'Product Manager', 'Data Scientist', 'Frontend Developer', 'Backend Engineer',
+  'Fullstack Developer', 'System Architect', 'UI/UX Designer', 'DevOps Engineer', 'AI Researcher'
+];
+
+const POPULAR_COMPANIES = [
+  'Google', 'Amazon', 'Meta', 'Netflix', 'Microsoft',
+  'Apple', 'Stripe', 'OpenAI', 'Tesla', 'Airbnb'
+];
 
 export default function InterviewSetupPage() {
   const navigate = useNavigate();
   const setupSession = useInterviewStore((s) => s.setupSession);
   const setQuestions = useInterviewStore((s) => s.setQuestions);
   
-  const [selectedRole, setSelectedRole] = useState('Product Manager');
+  const [selectedRole, setSelectedRole] = useState('Senior Software Engineer');
   const [selectedCompany, setSelectedCompany] = useState('Google');
   const [selectedPersona, setSelectedPersona] = useState('analytical');
   const [rigorLevel, setRigorLevel] = useState(4);
@@ -18,6 +28,7 @@ export default function InterviewSetupPage() {
   const rigorLabels = ['Baseline', 'Standard', 'Advanced', 'Expert', 'Bar Raiser'];
 
   const handleStart = async () => {
+    if (!selectedRole || !selectedCompany) return;
     setLoading(true);
     try {
       const { data } = await interviewAPI.setup({
@@ -35,98 +46,103 @@ export default function InterviewSetupPage() {
           persona: selectedPersona,
         });
 
-        // Fetch initial questions
         const qRes = await interviewAPI.getQuestions(data.sessionId);
         setQuestions(qRes.data);
-        
         navigate('/interview/session');
       }
     } catch (error) {
       console.error('Failed to setup interview:', error);
-      // Fallback for demo if backend is down
-      setupSession({
-        sessionId: `mock-${Date.now()}`,
-        role: selectedRole,
-        company: selectedCompany,
-        persona: selectedPersona,
-      });
-      navigate('/interview/session');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="max-w-max-width mx-auto px-container-padding py-section">
-      <div className="mb-xl max-w-2xl">
-        <h1 className="font-display text-display text-primary mb-md">Configure Chamber</h1>
-        <p className="font-body-lg text-body-lg text-secondary">
-          Define the parameters of your upcoming mock interview. Precision in setup leads to accuracy in performance analysis.
+    <div className="max-w-7xl mx-auto px-6 pb-20 animate-fade-in">
+      
+      {/* Simulation Header */}
+      <header className="pt-12 mb-16 space-y-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-label-bold text-[10px] uppercase tracking-[0.2em]">
+          <Activity size={14} />
+          Simulation Core
+        </div>
+        <h1 className="font-display text-5xl md:text-6xl font-bold text-primary tracking-tight">
+          Configure <span className="text-secondary">Chamber.</span>
+        </h1>
+        <p className="font-body-lg text-secondary text-xl max-w-2xl leading-relaxed">
+          Calibrate your target vectors and adjust the neural simulation intensity for maximum impact.
         </p>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
-        {/* Left Column: Settings Cards */}
-        <div className="lg:col-span-8 flex flex-col gap-lg">
-          {/* Role & Company Pebble */}
-          <section className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-pebble">
-            <div className="flex items-center gap-sm mb-lg">
-              <Briefcase size={24} className="text-primary" strokeWidth={1.5} />
-              <h2 className="font-headline-md text-headline-md text-primary">Target Role</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-              {/* Role Input */}
-              <div>
-                <label className="block font-label-bold text-label-bold text-primary mb-sm">Position</label>
-                <div className="relative">
-                  <Search size={24} className="absolute left-md top-1/2 -translate-y-1/2 text-secondary" strokeWidth={1.5} />
-                  <input
-                    className="w-full bg-surface-container-lowest border border-outline-variant rounded-input py-md pl-xl pr-md font-body-md text-body-md text-on-background focus:border-primary focus:ring-0 transition-colors"
-                    placeholder="e.g. Senior Product Manager"
-                    type="text"
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                  />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        {/* Configuration Matrix */}
+        <div className="lg:col-span-8 space-y-8">
+          
+          {/* Target Parameters */}
+          <div className="glass rounded-[40px] p-10 shadow-premium relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+            
+            <h3 className="font-label-bold text-xs text-secondary uppercase tracking-widest mb-10 flex items-center gap-2">
+              <Target size={16} /> Target Parameters
+            </h3>
+
+            <div className="space-y-12">
+              {/* Position Vector */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="font-label-bold text-xs text-primary uppercase tracking-widest pl-1">Target Position</label>
+                  <div className="relative group">
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" size={20} />
+                    <input
+                      className="w-full glass border border-outline-variant/30 rounded-2xl py-5 pl-14 pr-6 font-display font-bold text-lg text-primary focus:border-primary/40 outline-none transition-all shadow-sm"
+                      placeholder="e.g. Principal Architect"
+                      value={selectedRole}
+                      onChange={(e) => setSelectedRole(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-sm mt-md">
-                  {['Software Engineer', 'Product Manager', 'Data Scientist'].map((role) => (
+                <div className="flex flex-wrap gap-2">
+                  {POPULAR_ROLES.map(role => (
                     <button
                       key={role}
                       onClick={() => setSelectedRole(role)}
-                      className={
-                        selectedRole === role
-                          ? 'bg-primary text-on-primary rounded-full px-md py-sm font-label-sm text-label-sm transition-colors'
-                          : 'bg-surface-container-low border border-outline-variant rounded-full px-md py-sm font-label-sm text-label-sm text-primary hover:bg-surface-container-highest transition-colors'
-                      }
+                      className={`px-4 py-2 rounded-full text-[10px] font-label-bold transition-all border uppercase tracking-widest ${
+                        selectedRole === role 
+                          ? 'bg-primary text-on-primary border-primary shadow-lg shadow-primary/20' 
+                          : 'bg-surface-container-lowest text-secondary border-outline-variant/40 hover:border-primary/40'
+                      }`}
                     >
                       {role}
                     </button>
                   ))}
                 </div>
               </div>
-              {/* Company Input */}
-              <div>
-                <label className="block font-label-bold text-label-bold text-primary mb-sm">Target Company</label>
-                <div className="relative">
-                  <Building size={24} className="absolute left-md top-1/2 -translate-y-1/2 text-secondary" strokeWidth={1.5} />
-                  <input
-                    className="w-full bg-surface-container-lowest border border-outline-variant rounded-input py-md pl-xl pr-md font-body-md text-body-md text-on-background focus:border-primary focus:ring-0 transition-colors"
-                    placeholder="e.g. Google, Stripe"
-                    type="text"
-                    value={selectedCompany}
-                    onChange={(e) => setSelectedCompany(e.target.value)}
-                  />
+
+              {/* Company Vector */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="font-label-bold text-xs text-primary uppercase tracking-widest pl-1">Target Organization</label>
+                  <div className="relative group">
+                    <Building className="absolute left-5 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" size={20} />
+                    <input
+                      className="w-full glass border border-outline-variant/30 rounded-2xl py-5 pl-14 pr-6 font-display font-bold text-lg text-primary focus:border-primary/40 outline-none transition-all shadow-sm"
+                      placeholder="e.g. OpenAI"
+                      value={selectedCompany}
+                      onChange={(e) => setSelectedCompany(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-sm mt-md">
-                  {['Google', 'Amazon', 'Meta'].map((company) => (
+                <div className="flex flex-wrap gap-2">
+                  {POPULAR_COMPANIES.map(company => (
                     <button
                       key={company}
                       onClick={() => setSelectedCompany(company)}
-                      className={
-                        selectedCompany === company
-                          ? 'bg-primary text-on-primary rounded-full px-md py-sm font-label-sm text-label-sm transition-colors'
-                          : 'bg-surface-container-low border border-outline-variant rounded-full px-md py-sm font-label-sm text-label-sm text-primary hover:bg-surface-container-highest transition-colors'
-                      }
+                      className={`px-4 py-2 rounded-full text-[10px] font-label-bold transition-all border uppercase tracking-widest ${
+                        selectedCompany === company 
+                          ? 'bg-primary text-on-primary border-primary shadow-lg shadow-primary/20' 
+                          : 'bg-surface-container-lowest text-secondary border-outline-variant/40 hover:border-primary/40'
+                      }`}
                     >
                       {company}
                     </button>
@@ -134,108 +150,125 @@ export default function InterviewSetupPage() {
                 </div>
               </div>
             </div>
-          </section>
+          </div>
 
-          {/* Interviewer Persona Pebble */}
-          <section className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-pebble">
-            <div className="flex items-center gap-sm mb-lg">
-              <Brain size={24} className="text-primary" strokeWidth={1.5} />
-              <h2 className="font-headline-md text-headline-md text-primary">Interviewer Persona</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-              {[
-                { id: 'analytical', icon: BarChart3, label: 'Analytical', desc: 'Focuses deeply on frameworks, metrics, and logical deduction.' },
-                { id: 'challenging', icon: Gavel, label: 'Challenging', desc: 'Frequently interrupts, questions assumptions, high pressure.' },
-                { id: 'conversational', icon: Handshake, label: 'Conversational', desc: 'Warm, encouraging, focuses on behavioral fit and collaboration.' },
-              ].map((persona) => {
-                const Icon = persona.icon;
-                const isSelected = selectedPersona === persona.id;
-                return (
-                  <button
-                    key={persona.id}
-                    onClick={() => setSelectedPersona(persona.id)}
-                    className={`bg-surface-container-lowest border ${
-                      isSelected ? 'border-primary ring-2 ring-primary' : 'border-outline-variant hover:border-outline'
-                    } rounded-input p-lg text-left h-full transition-all`}
-                  >
-                    <Icon size={30} className="text-primary mb-sm" strokeWidth={1.5} />
-                    <h3 className="font-label-bold text-label-bold text-primary mb-xs">{persona.label}</h3>
-                    <p className="font-label-sm text-label-sm text-secondary">{persona.desc}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Difficulty Slider Pebble */}
-          <section className="bg-[var(--color-card-bg)] border border-[var(--color-card-border)] rounded-pebble p-pebble">
-            <div className="flex items-center gap-sm mb-lg">
-              <SlidersHorizontal size={24} className="text-primary" strokeWidth={1.5} />
-              <h2 className="font-headline-md text-headline-md text-primary">Rigor Level</h2>
-            </div>
-            <div className="px-sm py-md">
-              <input
-                className="w-full accent-primary"
-                max={5}
-                min={1}
-                type="range"
-                value={rigorLevel}
-                onChange={(e) => setRigorLevel(Number(e.target.value))}
-              />
-              <div className="flex justify-between mt-md">
-                {rigorLabels.map((label, i) => (
-                  <span
-                    key={label}
-                    className={`font-label-sm text-label-sm ${
-                      rigorLevel === i + 1 ? 'text-primary font-bold' : 'text-secondary'
-                    }`}
-                  >
-                    {label}
-                  </span>
-                ))}
+          {/* Persona & Intensity Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Interviewer Persona */}
+            <div className="glass rounded-[40px] p-10 shadow-premium">
+              <h3 className="font-label-bold text-xs text-secondary uppercase tracking-widest mb-8 flex items-center gap-2">
+                <Brain size={16} /> Neural Persona
+              </h3>
+              <div className="space-y-3">
+                {[
+                  { id: 'analytical', icon: BarChart3, label: 'Analytical', desc: 'Frameworks & Logic' },
+                  { id: 'challenging', icon: Gavel, label: 'Ruthless', desc: 'High Pressure Stress Test' },
+                  { id: 'conversational', icon: Handshake, label: 'Collaborative', desc: 'Behavioral & Culture' },
+                ].map((p) => {
+                  const Icon = p.icon;
+                  const isSelected = selectedPersona === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => setSelectedPersona(p.id)}
+                      className={`w-full flex items-center gap-4 p-5 rounded-[24px] text-left transition-all duration-300 border ${
+                        isSelected 
+                          ? 'bg-primary text-on-primary border-primary shadow-lg shadow-primary/20' 
+                          : 'bg-surface-container-lowest text-primary border-outline-variant/30 hover:border-primary/30'
+                      }`}
+                    >
+                      <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-white/20' : 'bg-primary/5'}`}>
+                        <Icon size={22} />
+                      </div>
+                      <div>
+                        <h3 className="font-display font-bold text-sm leading-none mb-1">{p.label}</h3>
+                        <p className={`text-[10px] font-medium ${isSelected ? 'text-white/70' : 'text-secondary'}`}>{p.desc}</p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          </section>
+
+            {/* Rigor Intensity */}
+            <div className="glass rounded-[40px] p-10 shadow-premium">
+              <h3 className="font-label-bold text-xs text-secondary uppercase tracking-widest mb-8 flex items-center gap-2">
+                <SlidersHorizontal size={16} /> Rigor Intensity
+              </h3>
+              <div className="space-y-10 h-full flex flex-col justify-center pb-10">
+                <div className="relative pt-6">
+                  <input
+                    type="range"
+                    max={5}
+                    min={1}
+                    value={rigorLevel}
+                    onChange={(e) => setRigorLevel(Number(e.target.value))}
+                    className="w-full h-1.5 bg-outline-variant/30 rounded-full appearance-none cursor-pointer accent-primary"
+                  />
+                  <div className="absolute -top-4 left-0 w-full flex justify-between">
+                    {[1, 2, 3, 4, 5].map((v) => (
+                      <div key={v} className={`w-1 h-3 rounded-full ${rigorLevel >= v ? 'bg-primary' : 'bg-outline-variant/30'}`} />
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-5 gap-1">
+                  {rigorLabels.map((label, i) => (
+                    <div key={label} className="text-center">
+                      <span className={`text-[8px] font-bold uppercase tracking-tighter block ${rigorLevel === i + 1 ? 'text-primary scale-110' : 'text-outline/50'} transition-all`}>
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right Column: Summary & CTA */}
-        <div className="lg:col-span-4 sticky top-[100px]">
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-pebble p-pebble">
-            <h3 className="font-headline-md text-headline-md text-primary mb-xl border-b border-outline-variant pb-md">
-              Session Overview
-            </h3>
-            <ul className="flex flex-col gap-md mb-xl">
+        {/* Mission Briefing Overlay */}
+        <div className="lg:col-span-4 lg:sticky lg:top-12">
+          <div className="glass rounded-[48px] p-10 border-2 border-primary/20 shadow-premium relative overflow-hidden bg-white/40">
+            <div className="absolute right-0 top-0 w-40 h-40 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl animate-pulse" />
+            
+            <div className="flex items-center justify-between mb-12 relative z-10">
+              <h3 className="font-display text-2xl font-bold text-primary italic">Mission Briefing</h3>
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+                <Zap size={22} />
+              </div>
+            </div>
+            
+            <div className="space-y-8 mb-16 relative z-10">
               {[
-                { label: 'Role', value: selectedRole },
-                { label: 'Target', value: selectedCompany },
-                { label: 'Persona', value: selectedPersona.charAt(0).toUpperCase() + selectedPersona.slice(1) },
-                { label: 'Rigor', value: `${rigorLabels[rigorLevel - 1]} (L${rigorLevel})` },
-                { label: 'Est. Duration', value: '45 Mins' },
-              ].map((item) => (
-                <li key={item.label} className="flex justify-between items-center">
-                  <span className="font-body-md text-body-md text-secondary">{item.label}</span>
-                  <span className="font-label-bold text-label-bold text-primary">{item.value}</span>
-                </li>
+                { label: 'Role Vector', val: selectedRole },
+                { label: 'Target Sector', val: selectedCompany },
+                { label: 'Neural Mindset', val: selectedPersona.toUpperCase() },
+                { label: 'Intensity Index', val: rigorLabels[rigorLevel-1] }
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col gap-1 border-b border-outline-variant/20 pb-4">
+                  <span className="text-outline font-label-bold text-[9px] uppercase tracking-[0.2em]">{item.label}</span>
+                  <span className="text-primary font-display font-bold text-base">{item.val}</span>
+                </div>
               ))}
-            </ul>
+            </div>
+
             <button
               onClick={handleStart}
               disabled={loading}
-              className="w-full bg-primary text-on-primary font-label-bold text-label-bold py-lg rounded-btn hover:bg-surface-tint disabled:opacity-50 transition-colors flex items-center justify-center gap-sm"
+              className="w-full bg-primary text-on-primary font-display text-lg font-bold py-6 rounded-[30px] shadow-xl shadow-primary/30 hover:shadow-2xl hover:-translate-y-1 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-50 relative z-10 group"
             >
-              {loading ? (
-                <Loader2 className="animate-spin" size={20} />
-              ) : (
-                <Play size={20} strokeWidth={1.5} />
-              )}
-              {loading ? 'Initializing...' : 'Start Mock Interview'}
+              {loading ? <Loader2 className="animate-spin" /> : <ShieldAlert size={24} className="group-hover:rotate-12 transition-transform" />}
+              {loading ? 'Initializing Neural Link...' : 'Engage Simulation'}
             </button>
-            <p className="font-label-sm text-label-sm text-center text-secondary mt-md">
-              Microphone access will be required on the next screen.
-            </p>
+            
+            <div className="mt-8 text-center relative z-10">
+              <div className="inline-flex items-center gap-2 text-outline font-label-bold text-[9px] uppercase tracking-[0.3em]">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                Neural Network Online
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
