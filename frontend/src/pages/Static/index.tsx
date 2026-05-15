@@ -6,6 +6,7 @@ interface StaticPageProps {
 }
 
 export default function StaticPage({ title, content }: StaticPageProps) {
+  return (
     <div className="w-full max-w-max-width mx-auto px-lg md:px-container-padding py-section flex-grow">
       <h1 className="font-display text-headline-lg text-primary mb-xl">{title}</h1>
       <div className="prose prose-invert max-w-none font-body-md text-secondary leading-relaxed">
@@ -14,4 +15,5 @@ export default function StaticPage({ title, content }: StaticPageProps) {
         ))}
       </div>
     </div>
+  );
 }
