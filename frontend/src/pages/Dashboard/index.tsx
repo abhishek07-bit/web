@@ -29,10 +29,16 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto w-full px-6 pb-20 animate-fade-in">
       
       {/* Hero Greeting Section */}
-      <header className="pt-12 mb-16 space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-label-bold text-[10px] uppercase tracking-[0.2em]">
-          <Zap size={14} />
-          Command Center Active
+      <header className="pt-12 mb-12 space-y-4 relative">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-label-bold text-[10px] uppercase tracking-[0.2em]">
+            <Zap size={14} />
+            Command Center Active
+          </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-600 font-label-bold text-[10px] uppercase tracking-[0.2em]">
+            <ShieldCheck size={14} />
+            Neural Link: Stable
+          </div>
         </div>
         <h1 className="font-display text-5xl md:text-6xl font-bold text-primary tracking-tight">
           {getGreeting()}, <span className="text-secondary">{firstName}.</span>
@@ -42,6 +48,21 @@ export default function DashboardPage() {
             ? 'Your neural profile is currently baseline. Engage in a simulation to start your growth.'
             : `Your readiness is currently at ${avgScore}%. Focus on technical depth to reach elite status.`}
         </p>
+
+        {/* Tactical HUD Overlay */}
+        <div className="absolute top-12 right-0 hidden xl:flex flex-col gap-2 p-4 glass rounded-3xl border-dashed">
+          <div className="flex items-center justify-between gap-8">
+            <span className="text-[9px] font-label-bold text-secondary uppercase tracking-widest">AI Cluster</span>
+            <span className="text-[9px] font-label-bold text-primary uppercase tracking-widest">Gemini-2.0-F</span>
+          </div>
+          <div className="flex items-center justify-between gap-8">
+            <span className="text-[9px] font-label-bold text-secondary uppercase tracking-widest">Latency</span>
+            <span className="text-[9px] font-label-bold text-green-500 uppercase tracking-widest">24ms</span>
+          </div>
+          <div className="w-full h-[2px] bg-outline-variant/20 rounded-full overflow-hidden">
+            <div className="h-full bg-primary w-2/3 animate-pulse" />
+          </div>
+        </div>
       </header>
 
       {/* Main Command Grid */}
@@ -52,11 +73,11 @@ export default function DashboardPage() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
           
           <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-            <div className="relative w-48 h-48 flex items-center justify-center shrink-0">
+            <div className="relative w-48 h-48 flex items-center justify-center shrink-0 neural-pulse">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                 <circle className="text-outline-variant/30" cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="2" />
                 <circle 
-                  className="text-primary transition-all duration-1500" 
+                  className="text-primary transition-all duration-1500 glow-primary" 
                   cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="2"
                   strokeDasharray={`${avgScore}, 100`}
                   strokeLinecap="round"
