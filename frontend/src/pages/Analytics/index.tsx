@@ -57,53 +57,116 @@ export default function AnalyticsPage() {
       </header>
 
       {/* Primary Intel Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-        <div className="glass rounded-[32px] p-8 shadow-sm group">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-xl bg-primary/10 text-primary">
-              <Activity size={20} />
-            </div>
-            <h3 className="font-label-bold text-xs uppercase tracking-[0.1em] text-secondary">Readiness Index</h3>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div className="glass rounded-[32px] p-6 shadow-sm border-l-4 border-primary">
+          <div className="flex items-center gap-3 mb-4">
+            <Activity size={18} className="text-primary" />
+            <h3 className="font-label-bold text-[10px] uppercase tracking-widest text-secondary">Readiness</h3>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-5xl font-bold text-primary">{avgScore}%</span>
+            <span className="font-display text-4xl font-bold text-primary">{avgScore}%</span>
             {trend !== 0 && (
-              <span className={`text-[10px] font-label-bold px-2 py-0.5 rounded-full ${trend > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {trend > 0 ? '+' : ''}{trend}%
+              <span className={`text-[10px] font-label-bold px-2 py-0.5 rounded-full ${trend > 0 ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                {trend > 0 ? '↑' : '↓'}{Math.abs(trend)}%
               </span>
             )}
           </div>
-          <p className="text-[10px] font-label-bold text-outline mt-4 uppercase tracking-widest">Global Ranking: Top 15%</p>
         </div>
 
-        <div className="glass rounded-[32px] p-8 shadow-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-xl bg-primary/10 text-primary">
-              <Zap size={20} />
-            </div>
-            <h3 className="font-label-bold text-xs uppercase tracking-[0.1em] text-secondary">Active Sessions</h3>
+        <div className="glass rounded-[32px] p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <Zap size={18} className="text-primary" />
+            <h3 className="font-label-bold text-[10px] uppercase tracking-widest text-secondary">Operations</h3>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-display text-5xl font-bold text-primary">{totalSessions}</span>
-            <span className="text-secondary font-label-bold text-xs">Total</span>
-          </div>
-          <p className="text-[10px] font-label-bold text-outline mt-4 uppercase tracking-widest">{thisWeek.length} completed this week</p>
+          <span className="font-display text-4xl font-bold text-primary">{totalSessions}</span>
         </div>
 
-        <div className="glass rounded-[32px] p-8 shadow-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-xl bg-primary/10 text-primary">
-              <Clock size={20} />
-            </div>
-            <h3 className="font-label-bold text-xs uppercase tracking-[0.1em] text-secondary">Neural Training</h3>
+        <div className="glass rounded-[32px] p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <Clock size={18} className="text-primary" />
+            <h3 className="font-label-bold text-[10px] uppercase tracking-widest text-secondary">Neural Load</h3>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-display text-5xl font-bold text-primary">{totalSessions > 0 ? sessions.reduce((sum, s) => sum + (s.duration || 0), 0) : 0}</span>
-            <span className="text-secondary font-label-bold text-xs">Mins</span>
+          <span className="font-display text-4xl font-bold text-primary">{totalSessions > 0 ? sessions.reduce((sum, s) => sum + (s.duration || 0), 0) : 0}m</span>
+        </div>
+
+        <div className="glass rounded-[32px] p-6 shadow-sm relative overflow-hidden group">
+          <div className="flex items-center gap-3 mb-4">
+            <ShieldCheck size={18} className="text-primary" />
+            <h3 className="font-label-bold text-[10px] uppercase tracking-widest text-secondary">Stability</h3>
           </div>
-          <p className="text-[10px] font-label-bold text-outline mt-4 uppercase tracking-widest">Avg {totalSessions > 0 ? Math.round(sessions.reduce((sum, s) => sum + (s.duration || 0), 0) / totalSessions) : 0}m / session</p>
+          <span className="font-display text-4xl font-bold text-primary">Stable</span>
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-primary/10">
+            <div className="h-full bg-primary/30 w-full animate-pulse" />
+          </div>
         </div>
       </div>
+
+      {/* Cinematic Performance Chart */}
+      <section className="glass rounded-[40px] p-10 mb-12 shadow-premium relative overflow-hidden">
+        <div className="flex items-center justify-between mb-12">
+          <div className="space-y-1">
+            <h3 className="font-display text-2xl font-bold text-primary">Neural Growth Curve</h3>
+            <p className="text-[10px] font-label-bold text-secondary uppercase tracking-[0.2em]">Readiness Delta Over Last 10 Missions</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary" />
+              <span className="text-[9px] font-label-bold text-secondary uppercase tracking-widest">Score Vector</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="h-64 w-full relative">
+          {totalSessions > 1 ? (
+            <svg className="w-full h-full overflow-visible" viewBox="0 0 1000 200" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="var(--md-sys-color-primary)" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              {/* Grid Lines */}
+              {[0, 50, 100, 150, 200].map(y => (
+                <line key={y} x1="0" y1={y} x2="1000" y2={y} stroke="var(--md-sys-color-outline-variant)" strokeWidth="0.5" strokeDasharray="4,4" />
+              ))}
+              
+              {/* Line Area */}
+              <path
+                d={`M 0 200 ${sessions.slice(-10).map((s, i) => `L ${(i / 9) * 1000} ${200 - ((s.score || 0) * 2)}`).join(' ')} L 1000 200 Z`}
+                fill="url(#chartGradient)"
+                className="animate-fade-in"
+              />
+              
+              {/* Main Line */}
+              <path
+                d={sessions.slice(-10).map((s, i) => `${i === 0 ? 'M' : 'L'} ${(i / 9) * 1000} ${200 - ((s.score || 0) * 2)}`).join(' ')}
+                fill="none"
+                stroke="var(--md-sys-color-primary)"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="animate-draw-path"
+                style={{ strokeDasharray: 2000, strokeDashoffset: 2000 }}
+              />
+              
+              {/* Data Points */}
+              {sessions.slice(-10).map((s, i) => (
+                <circle
+                  key={s.id}
+                  cx={(i / 9) * 1000}
+                  cy={200 - ((s.score || 0) * 2)}
+                  r="4"
+                  className="fill-surface-container-lowest stroke-primary stroke-2"
+                />
+              ))}
+            </svg>
+          ) : (
+            <div className="flex items-center justify-center h-full border-2 border-dashed border-outline-variant/30 rounded-3xl text-outline font-label-bold text-xs uppercase tracking-widest">
+              Insufficient Data for Growth Matrix
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Detailed Analysis Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

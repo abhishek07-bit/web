@@ -6,6 +6,7 @@ import { useInterviewStore } from '../../store/interviewStore';
 import { interviewAPI } from '../../api/client';
 import { useVoice } from '../../hooks/useVoice';
 import { useSpeechToText } from '../../hooks/useSpeechToText';
+import NeuralLoader from '../../components/common/NeuralLoader';
 
 type Phase = 'question' | 'evaluating' | 'feedback';
 
@@ -191,13 +192,8 @@ export default function MockInterviewPage() {
         
         {/* PHASE: EVALUATING */}
         {phase === 'evaluating' && (
-          <div className="absolute inset-0 flex flex-col justify-center items-center text-center z-50 glass backdrop-blur-md rounded-[48px] animate-fade-in">
-            <div className="relative mb-10">
-              <div className="w-32 h-32 rounded-full border-4 border-primary/10 border-t-primary animate-spin" />
-              <Brain className="absolute inset-0 m-auto text-primary animate-pulse" size={48} />
-            </div>
-            <h2 className="font-display text-4xl font-bold text-primary tracking-tight mb-4">Neural Processing...</h2>
-            <p className="font-body-lg text-secondary text-lg max-w-sm">Synthesizing response vectors and technical validity.</p>
+          <div className="absolute inset-0 flex flex-col justify-center items-center z-50 glass backdrop-blur-md rounded-[48px] animate-fade-in">
+            <NeuralLoader message="Synthesizing Response Vectors..." />
           </div>
         )}
 
