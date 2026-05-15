@@ -1,7 +1,10 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import InterviewLayout from '../layouts/InterviewLayout';
+import ToastContainer from '../components/common/ToastContainer';
+import Navbar from '../components/common/Navbar';
+import Footer from '../components/common/Footer';
 
 import LandingPage from '../pages/Landing';
 import LoginPage from '../pages/Auth/Login';
@@ -179,48 +182,78 @@ We leverage state-of-the-art Large Language Models (LLMs) to dynamically generat
 
 Whether you are preparing for a grueling FAANG system design round or a standard behavioral screening, PrepMate AI is your ultimate sparring partner.`;
 
+// Root Wrapper to provide global systems
+function RootWrapper() {
+  return (
+    <>
+      <Outlet />
+      <ToastContainer />
+    </>
+  );
+}
+
+// Layout for Static Pages (Landing, Terms, etc.) that need Navbar/Footer but no Auth
+function StaticLayout() {
+  return (
+    <div className="bg-background text-on-background antialiased min-h-screen flex flex-col selection:bg-primary/20">
+      <Navbar />
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <LandingPage />,
-  },
-  { path: '/terms', element: <StaticPage title="Terms of Service" content={TERMS_CONTENT} /> },
-  { path: '/privacy', element: <StaticPage title="Privacy Policy" content={PRIVACY_CONTENT} /> },
-  { path: '/cookie-policy', element: <StaticPage title="Cookie Policy" content={COOKIE_CONTENT} /> },
-  { path: '/system-design', element: <StaticPage title="System Design Guide" content={SYSTEM_DESIGN_CONTENT} /> },
-  { path: '/behavioral', element: <StaticPage title="Behavioral Questions" content={BEHAVIORAL_CONTENT} /> },
-  { path: '/blog', element: <StaticPage title="PrepMate AI Blog" content={BLOG_CONTENT} /> },
-  { path: '/help', element: <StaticPage title="Help Center" content={HELP_CONTENT} /> },
-  { path: '/contact', element: <StaticPage title="Contact Us" content={CONTACT_CONTENT} /> },
-  { path: '/careers', element: <StaticPage title="Careers" content={CAREERS_CONTENT} /> },
-  { path: '/about', element: <StaticPage title="About Us" content={ABOUT_CONTENT} /> },
-  {
-    element: <AuthLayout />,
+    element: <RootWrapper />,
     children: [
-      { path: 'login', element: <LoginPage /> },
-      { path: 'signup', element: <SignupPage /> },
+      {
+        element: <StaticLayout />,
+        children: [
+          { path: '/', element: <LandingPage /> },
+          { path: '/terms', element: <StaticPage title="Terms of Service" content={TERMS_CONTENT} /> },
+          { path: '/privacy', element: <StaticPage title="Privacy Policy" content={PRIVACY_CONTENT} /> },
+          { path: '/cookie-policy', element: <StaticPage title="Cookie Policy" content={COOKIE_CONTENT} /> },
+          { path: '/system-design', element: <StaticPage title="System Design Guide" content={SYSTEM_DESIGN_CONTENT} /> },
+          { path: '/behavioral', element: <StaticPage title="Behavioral Questions" content={BEHAVIORAL_CONTENT} /> },
+          { path: '/blog', element: <StaticPage title="PrepMate AI Blog" content={BLOG_CONTENT} /> },
+          { path: '/help', element: <StaticPage title="Help Center" content={HELP_CONTENT} /> },
+          { path: '/contact', element: <StaticPage title="Contact Us" content={CONTACT_CONTENT} /> },
+          { path: '/careers', element: <StaticPage title="Careers" content={CAREERS_CONTENT} /> },
+          { path: '/about', element: <StaticPage title="About Us" content={ABOUT_CONTENT} /> },
+        ]
+      },
+      {
+        element: <AuthLayout />,
+        children: [
+          { path: 'login', element: <LoginPage /> },
+          { path: 'signup', element: <SignupPage /> },
+        ],
+      },
+      {
+        element: <AppLayout />,
+        children: [
+          { path: 'dashboard', element: <DashboardPage /> },
+          { path: 'resume', element: <ResumeUploadPage /> },
+          { path: 'interview/setup', element: <InterviewSetupPage /> },
+          { path: 'feedback/:id', element: <FeedbackPage /> },
+          { path: 'analytics', element: <AnalyticsPage /> },
+          { path: 'settings', element: <SettingsPage /> },
+          { path: 'company-prep', element: <CompanyPrepPage /> },
+        ],
+      },
+      {
+        element: <InterviewLayout />,
+        children: [
+          { path: 'interview/session', element: <MockInterviewPage /> },
+        ],
+      },
+      {
+        path: '*',
+        element: <Navigate to="/" replace />,
+      },
     ],
-  },
-  {
-    element: <AppLayout />,
-    children: [
-      { path: 'dashboard', element: <DashboardPage /> },
-      { path: 'resume', element: <ResumeUploadPage /> },
-      { path: 'interview/setup', element: <InterviewSetupPage /> },
-      { path: 'feedback/:id', element: <FeedbackPage /> },
-      { path: 'analytics', element: <AnalyticsPage /> },
-      { path: 'settings', element: <SettingsPage /> },
-      { path: 'company-prep', element: <CompanyPrepPage /> },
-    ],
-  },
-  {
-    element: <InterviewLayout />,
-    children: [
-      { path: 'interview/session', element: <MockInterviewPage /> },
-    ],
-  },
-  {
-    path: '*',
-    element: <Navigate to="/" replace />,
   },
 ]);
