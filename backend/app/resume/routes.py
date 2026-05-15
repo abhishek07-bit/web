@@ -44,22 +44,40 @@ async def upload_resume(
     extracted_skills = []
     parsed_text_str = ""
     
+    import asyncio
+    
+    def extract_pdf_text(b_content):
+        text = ""
+        reader = PdfReader(io.BytesIO(b_content))
+        for page in reader.pages:
+            text += page.extract_text() + " "
+        return text
+
+    def extract_docx_text(b_content):
+        from docx import Document
+        doc = Document(io.BytesIO(b_content))
+        return " ".join([p.text for p in doc.paragraphs])
+
     # Real PDF parsing
     if file.filename.lower().endswith(".pdf"):
         try:
-            reader = PdfReader(io.BytesIO(content))
-            for page in reader.pages:
-                parsed_text_str += page.extract_text() + " "
-                
-            text_lower = parsed_text_str.lower()
-            # Extract skills by matching against the common skills list
-            for skill in COMMON_SKILLS:
-                if skill.lower() in text_lower:
-                    extracted_skills.append(skill)
+            parsed_text_str = await asyncio.get_event_loop().run_in_executor(None, extract_pdf_text, content)
         except Exception as e:
-            print(f"Failed to parse PDF: {e}")
-            extracted_skills = ["Parsing Error"]
+            raise HTTPException(status_code=422, detail="Failed to parse PDF document.")
+            
+    # Real DOCX parsing
+    elif file.filename.lower().endswith(".docx"):
+        try:
+            parsed_text_str = await asyncio.get_event_loop().run_in_executor(None, extract_docx_text, content)
+        except Exception as e:
+            raise HTTPException(status_code=422, detail="Failed to parse DOCX document.")
 
+    if parsed_text_str:
+        text_lower = parsed_text_str.lower()
+        # Extract skills by matching against the common skills list
+        for skill in COMMON_SKILLS:
+            if skill.lower() in text_lower:
+                extracted_skills.append(skill)
     # Deduplicate and sort
     extracted_skills = sorted(list(set(extracted_skills)))
 
@@ -101,7 +119,11 @@ def get_skills(
 
     return {"skills": resume.skills, "fileName": resume.file_name}
 
-from app.services.ai_service import analyze_resume
+from app.services.ai_service import analyze_resume, analyze_job_match
+from pydantic import BaseModel
+
+class MatchRequest(BaseModel):
+    jobDescription: str
 
 @router.post("/analyze/{resume_id}")
 async def run_resume_analysis(
@@ -127,3 +149,20 @@ async def run_resume_analysis(
     db.commit()
     
     return analysis_result
+
+@router.post("/match/{resume_id}")
+async def match_resume_to_job(
+    resume_id: str,
+    req: MatchRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    resume = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
+    if not resume:
+        raise HTTPException(status_code=404, detail="Resume not found")
+        
+    if not resume.parsed_text:
+        raise HTTPException(status_code=400, detail="Resume text could not be parsed previously")
+        
+    match_result = await analyze_job_match(resume.parsed_text, req.jobDescription)
+    return match_result

@@ -57,8 +57,9 @@ export const useAuthStore = create<AuthState>()(
             avatarUrl: user.photoURL || undefined,
             createdAt: user.metadata.creationTime || new Date().toISOString(),
           }, token);
-        } catch (error: any) {
-          console.error('Google sign-in error:', error.message);
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
+          console.error('Google sign-in error:', message);
         }
       },
 
@@ -83,9 +84,9 @@ export const useAuthStore = create<AuthState>()(
             createdAt: user.metadata.creationTime || new Date().toISOString(),
           }, token);
           return {};
-        } catch (error: any) {
+        } catch (error: unknown) {
           set({ loading: false });
-          return { error: error.message };
+          return { error: error instanceof Error ? error.message : 'Failed to sign in' };
         }
       },
 
@@ -113,9 +114,9 @@ export const useAuthStore = create<AuthState>()(
             createdAt: user.metadata.creationTime || new Date().toISOString(),
           }, token);
           return {};
-        } catch (error: any) {
+        } catch (error: unknown) {
           set({ loading: false });
-          return { error: error.message };
+          return { error: error instanceof Error ? error.message : 'Failed to sign up' };
         }
       },
 

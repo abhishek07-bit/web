@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.concurrency import run_in_threadpool
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+import uuid
 
 from app.db.database import get_db
 from app.models.models import User
@@ -40,7 +42,7 @@ def create_access_token(data: dict):
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     import firebase_admin
     from firebase_admin import auth as firebase_auth
     
@@ -67,12 +69,15 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     
     # 3. Just-in-time user creation (for Social Login / Firebase users)
     if user is None and email:
+        # Securely handle Firebase JIT user creation without weak defaults
+        random_pass = str(uuid.uuid4()) + "SOCIAL_LOGIN"
+        hashed_pass = await run_in_threadpool(pwd_context.hash, random_pass)
         user = User(
             id=user_id,
             email=email,
-            hashed_password="EXTERNAL_AUTH",
+            hashed_password=hashed_pass,
             first_name=email.split('@')[0],
-            last_name="",
+            last_name="User",
         )
         db.add(user)
         db.commit()
@@ -84,15 +89,21 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 
 
+import re
+
 @router.post("/register")
-def register(req: RegisterRequest, db: Session = Depends(get_db)):
+async def register(req: RegisterRequest, db: Session = Depends(get_db)):
+    if len(req.password) < 8 or not re.search(r"[A-Za-z]", req.password) or not re.search(r"\d", req.password):
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters long and contain both letters and numbers.")
+
     existing = db.query(User).filter(User.email == req.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
+    hashed_pass = await run_in_threadpool(pwd_context.hash, req.password)
     user = User(
         email=req.email,
-        hashed_password=pwd_context.hash(req.password),
+        hashed_password=hashed_pass,
         first_name=req.firstName,
         last_name=req.lastName,
     )
@@ -115,9 +126,13 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(req: LoginRequest, db: Session = Depends(get_db)):
+async def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
-    if not user or not pwd_context.verify(req.password, user.hashed_password):
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+    is_valid = await run_in_threadpool(pwd_context.verify, req.password, user.hashed_password)
+    if not is_valid:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": user.id})
@@ -135,7 +150,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/me")
-def get_me(current_user: User = Depends(get_current_user)):
+async def get_me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
         "email": current_user.email,

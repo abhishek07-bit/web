@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.models import User, InterviewSession, Question, Answer
 from app.auth.routes import get_current_user
+import collections
 
 router = APIRouter()
 
@@ -53,17 +54,18 @@ def get_weaknesses(current_user: User = Depends(get_current_user), db: Session =
     answers = db.query(Answer).filter(Answer.question_id.in_(q_ids)).all()
     
     # Group by category
-    category_scores = {}
+    category_scores = collections.defaultdict(list)
     for q in questions:
         # find answer for this question
         ans = next((a for a in answers if a.question_id == q.id), None)
         if ans and ans.score is not None:
-            if q.category not in category_scores:
-                category_scores[q.category] = []
-            category_scores[q.category].append(ans.score)
+            cat_name = q.category if q.category else "Uncategorized"
+            category_scores[cat_name].append(ans.score)
             
     topics = []
     for cat, scores in category_scores.items():
+        if not scores:
+            continue
         avg = sum(scores) / len(scores)
         if avg < 75:  # Weakness threshold
             severity = 3 if avg < 60 else (2 if avg < 70 else 1)
@@ -83,8 +85,15 @@ def get_weaknesses(current_user: User = Depends(get_current_user), db: Session =
 
 
 @router.get("/history")
-def get_history(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    sessions = db.query(InterviewSession).filter(InterviewSession.user_id == current_user.id).order_by(InterviewSession.created_at.desc()).all()
+def get_history(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    sessions = db.query(InterviewSession).filter(
+        InterviewSession.user_id == current_user.id
+    ).order_by(InterviewSession.created_at.desc()).offset(skip).limit(limit).all()
     
     return [
         {

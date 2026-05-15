@@ -247,8 +247,8 @@ export default function FeedbackPage() {
           </p>
           <div className="flex flex-col gap-sm mt-auto">
             {(feedback.recommendedActions && feedback.recommendedActions.length > 0 ? feedback.recommendedActions : [
-              { title: 'Microservices vs Monoliths', link: '#' }, 
-              { title: 'Database Sharding Strategies', link: '#' }
+              { title: 'Microservices vs Monoliths', link: 'https://www.google.com/search?q=Microservices+vs+Monoliths+Architecture' }, 
+              { title: 'Database Sharding Strategies', link: 'https://www.google.com/search?q=Database+Sharding+Strategies' }
             ]).map((topic, i) => (
               <a
                 key={i}

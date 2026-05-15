@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Brain, Code, Globe, Clock, Play, ArrowRight, Target, Search, Loader2, Zap } from 'lucide-react';
+import { Brain, Code, Globe, Clock, Play, Target, Search, Loader2, Zap, AlertCircle } from 'lucide-react';
 import { companyAPI } from '../../api/client';
 
 const iconMap: Record<string, any> = {
@@ -11,15 +11,48 @@ const iconMap: Record<string, any> = {
   Zap
 };
 
+interface PrepScenario {
+  title: string;
+  category: string;
+  time: string;
+  desc: string;
+}
+
+interface PrepPhilosophy {
+  title: string;
+  desc: string;
+  icon: string;
+}
+
+interface CompanyPrepData {
+  company: string;
+  description: string;
+  corePhilosophy: PrepPhilosophy[];
+  targetedScenarios: PrepScenario[];
+  isFallback?: boolean;
+}
+
 export default function CompanyPrepPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCompany = searchParams.get('company') || 'Google';
   
   const [company, setCompany] = useState(initialCompany);
   const [searchInput, setSearchInput] = useState(initialCompany);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<CompanyPrepData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const trimmed = searchInput.trim();
+      if (trimmed && trimmed !== company) {
+        setCompany(trimmed);
+        setSearchParams({ company: trimmed });
+      }
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchInput, company, setSearchParams]);
 
   useEffect(() => {
     async function fetchData() {
@@ -28,8 +61,8 @@ export default function CompanyPrepPage() {
       setError('');
       try {
         const response = await companyAPI.getPrep(company);
-        setData(response.data);
-      } catch (err) {
+        setData(response.data as CompanyPrepData);
+      } catch (err: unknown) {
         console.error('Failed to load company prep:', err);
         setError('Failed to load preparation data. Please try again.');
       } finally {
@@ -68,7 +101,7 @@ export default function CompanyPrepPage() {
               className="w-full bg-surface-container-lowest border border-outline-variant rounded-full pl-10 pr-4 py-2 font-body-md text-body-md text-on-background focus:border-primary focus:ring-0 outline-none transition-colors"
             />
           </div>
-          <button type="submit" disabled={loading || !searchInput.trim()} className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2 rounded-full hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2">
+          <button type="submit" disabled={loading || !searchInput.trim() || searchInput.trim() === company} className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2 rounded-full hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2">
             {loading ? <Loader2 size={16} className="animate-spin" /> : 'Search'}
           </button>
         </form>
@@ -85,9 +118,17 @@ export default function CompanyPrepPage() {
         </div>
       ) : data ? (
         <div className="animate-slide-up">
-          <div className="inline-flex items-center gap-sm px-4 py-2 bg-primary/10 border border-primary/20 rounded-full mb-lg">
-            <Target size={16} className="text-primary" strokeWidth={1.5} />
-            <span className="font-label-bold text-label-bold text-primary uppercase tracking-wider text-[11px]">{data.company} Path Active</span>
+          <div className="flex items-center gap-md mb-lg flex-wrap">
+            <div className="inline-flex items-center gap-sm px-4 py-2 bg-primary/10 border border-primary/20 rounded-full">
+              <Target size={16} className="text-primary" strokeWidth={1.5} />
+              <span className="font-label-bold text-label-bold text-primary uppercase tracking-wider text-[11px]">{data.company} Path Active</span>
+            </div>
+            {data.isFallback && (
+              <div className="inline-flex items-center gap-sm px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
+                <AlertCircle size={16} className="text-yellow-600" strokeWidth={1.5} />
+                <span className="font-label-bold text-label-bold text-yellow-600 uppercase tracking-wider text-[11px]">Using Offline Fallback Data</span>
+              </div>
+            )}
           </div>
           <h2 className="font-headline-lg text-headline-lg text-primary mb-md">{data.company} Preparation Path</h2>
           <p className="font-body-lg text-body-lg text-secondary max-w-3xl mb-xl">
@@ -96,7 +137,7 @@ export default function CompanyPrepPage() {
 
           {/* Bento Grid: Core Philosophy */}
           <section className="grid grid-cols-1 md:grid-cols-12 gap-lg mb-[80px]">
-            {data.corePhilosophy?.map((card: any, idx: number) => {
+            {data.corePhilosophy?.map((card, idx) => {
               const Icon = iconMap[card.icon] || Brain;
               return (
                 <div key={idx} className="md:col-span-4 bg-surface-container-low border border-outline-variant rounded-pebble p-lg flex flex-col justify-between h-full group hover:border-primary transition-colors duration-300">
@@ -118,7 +159,7 @@ export default function CompanyPrepPage() {
               <h2 className="font-headline-lg text-headline-lg text-primary">Targeted Scenarios</h2>
             </div>
             <div className="flex flex-col gap-md">
-              {data.targetedScenarios?.map((question: any, idx: number) => (
+              {data.targetedScenarios?.map((question, idx) => (
                 <div key={idx} className="bg-surface border border-outline-variant rounded-pebble p-lg flex flex-col md:flex-row md:items-center justify-between gap-lg hover:border-primary transition-all duration-200 cursor-pointer">
                   <div className="flex-1">
                     <div className="flex items-center gap-sm mb-sm">

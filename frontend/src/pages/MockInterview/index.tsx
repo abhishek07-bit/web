@@ -54,12 +54,19 @@ export default function MockInterviewPage() {
     }
   }, [currentQuestionIndex, currentQuestion, phase]);
 
+  const timerRef = useRef<any>(null);
+
   useEffect(() => {
-    if (phase !== 'question') return;
-    const interval = setInterval(() => {
+    if (phase !== 'question') {
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+    timerRef.current = setInterval(() => {
       setTimer((prev) => prev + 1);
     }, 1000);
-    return () => clearInterval(interval);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [currentQuestionIndex, phase]);
 
   const formatTime = (seconds: number) => {

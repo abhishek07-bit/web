@@ -111,7 +111,7 @@ export const useInterviewStore = create<InterviewState>()(
     }),
     {
       name: 'prepmate-interview',
-      partialize: (state) => ({ sessions: state.sessions }),
+      partialize: (state) => ({ }), // Do not persist sessions locally to avoid split-brain with backend
     }
   )
 );

@@ -20,4 +20,6 @@ def get_db():
 
 
 def init_db():
+    # Import all models here so metadata is populated
+    from app.models import models
     Base.metadata.create_all(bind=engine)

@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from './routes';
 import { useSettingsStore } from './store/settingsStore';
 import { useAuthStore } from './store/authStore';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import './styles/index.css';
 
 // Apply theme immediately before render to avoid flash
@@ -19,6 +20,8 @@ useAuthStore.getState().initAuth();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+    </ErrorBoundary>
   </StrictMode>
 );

@@ -161,9 +161,13 @@ async def get_feedback(
 
     # Gather questions and answers
     questions = db.query(Question).filter(Question.session_id == session_id).order_by(Question.order_num).all()
+    question_ids = [q.id for q in questions]
+    answers = db.query(Answer).filter(Answer.question_id.in_(question_ids)).all()
+    answer_map = {a.question_id: a for a in answers}
+    
     qa_pairs = []
     for q in questions:
-        answer = db.query(Answer).filter(Answer.question_id == q.id).first()
+        answer = answer_map.get(q.id)
         qa_pairs.append({
             "category": q.category,
             "question": q.text,
@@ -202,6 +206,7 @@ async def get_company_prep(
         prep = {
             "company": company_name,
             "description": f"A targeted preparation path for {company_name}.",
+            "isFallback": True,
             "corePhilosophy": [
                 {"title": "Leadership Principles", "desc": "Focus on data-driven decision making and bias for action.", "icon": "Brain"},
                 {"title": "System Design Focus", "desc": "Expect heavy focus on scalability and high availability.", "icon": "Code"},

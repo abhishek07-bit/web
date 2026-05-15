@@ -6,6 +6,8 @@ passlib[bcrypt]
 python-multipart
 python-dotenv
 PyPDF2
+pypdf
+python-docx
 pydantic
 httpx
 psycopg2-binary

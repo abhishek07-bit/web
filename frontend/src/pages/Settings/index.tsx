@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, FileText, Trash2, Plus, X, Sun, Moon, Monitor, LogOut } from 'lucide-react';
+import { Upload, FileText, Trash2, Plus, X, Sun, Moon, Monitor, LogOut, Loader2 } from 'lucide-react';
 import { useSettingsStore, type ThemeMode } from '../../store/settingsStore';
 import { useAuthStore } from '../../store/authStore';
 import { useResumeStore } from '../../store/resumeStore';
@@ -29,10 +29,15 @@ export default function SettingsPage() {
   const [newRole, setNewRole] = useState('');
   const [showAddRole, setShowAddRole] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const settingsFileRef = useRef<HTMLInputElement>(null);
 
   const handleSettingsUpload = async (file: File) => {
-    if (file.size > 5 * 1024 * 1024) return alert('File too large. Max 5MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('File too large. Max 5MB.');
+      return;
+    }
+    setUploadError(null);
     resume.setUploading(true);
     resume.setFile({ name: file.name, size: file.size });
     try {
@@ -42,7 +47,7 @@ export default function SettingsPage() {
       console.error('Upload failed:', err);
       resume.setFile(null);
       resume.setParsedData(null);
-      alert('Upload failed. Please try again.');
+      setUploadError('Upload failed. Please try again.');
     } finally {
       resume.setUploading(false);
     }
@@ -158,26 +163,32 @@ export default function SettingsPage() {
             <div
               onClick={() => settingsFileRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
-              onDrop={async (e) => {
+              onDrop={(e) => {
                 e.preventDefault();
-                const file = e.dataTransfer.files[0];
-                if (file) await handleSettingsUpload(file);
+                if (e.dataTransfer.files[0]) handleSettingsUpload(e.dataTransfer.files[0]);
               }}
-              className="border-2 border-dashed border-outline-variant rounded-btn p-md flex flex-col items-center justify-center text-center gap-xs bg-surface-container-lowest cursor-pointer hover:border-primary transition-colors group"
+              className="border-2 border-dashed border-outline-variant hover:border-primary rounded-pebble p-xl flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-surface-container-lowest hover:bg-primary/5"
             >
-              <Upload size={24} className="text-secondary group-hover:text-primary transition-colors" strokeWidth={1.5} />
-              <p className="font-label-bold text-label-sm text-primary">Click to upload or drag and drop</p>
-              <p className="font-label-sm text-label-sm text-secondary">PDF, DOCX up to 5MB</p>
+              {resume.isUploading ? (
+                <>
+                  <Loader2 size={24} className="text-primary animate-spin mb-sm" />
+                  <p className="font-label-bold text-label-bold text-primary">Uploading...</p>
+                </>
+              ) : (
+                <>
+                  <Upload size={24} className="text-secondary mb-sm" strokeWidth={1.5} />
+                  <h4 className="font-label-bold text-label-bold text-primary mb-xs">Drop new resume here</h4>
+                  <p className="font-label-sm text-label-sm text-secondary">PDF, DOCX — Max 5MB</p>
+                </>
+              )}
             </div>
+            {uploadError && <p className="font-label-sm text-label-sm text-error mt-xs">{uploadError}</p>}
             <input
               ref={settingsFileRef}
               type="file"
               accept=".pdf,.docx"
+              onChange={(e) => e.target.files?.[0] && handleSettingsUpload(e.target.files[0])}
               className="hidden"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) await handleSettingsUpload(file);
-              }}
             />
           </section>
         </div>

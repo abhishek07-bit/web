@@ -2,8 +2,11 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Layers, Zap, FileText, Target } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
+import { useAuthStore } from '../../store/authStore';
 
 export default function LandingPage() {
+  const { user } = useAuthStore();
+
   return (
     <div className="bg-background text-on-background antialiased min-h-screen flex flex-col">
       <Navbar />
@@ -22,18 +25,29 @@ export default function LandingPage() {
             A disciplined approach to interview preparation. Elevate your narrative through adaptive logic, removing noise to focus purely on performance.
           </p>
           <div className="flex gap-md flex-wrap justify-center">
-            <Link
-              to="/signup"
-              className="bg-primary text-on-primary font-label-bold text-label-bold px-xl py-md rounded-full hover:opacity-90 transition-all duration-300 flex items-center gap-sm"
-            >
-              Get Started Free <ArrowRight size={18} />
-            </Link>
-            <Link
-              to="/login"
-              className="bg-surface-container-lowest text-primary border border-outline-variant font-label-bold text-label-bold px-xl py-md rounded-full hover:bg-surface-container-low transition-all duration-300"
-            >
-              Sign In
-            </Link>
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="bg-primary text-on-primary font-label-bold text-label-bold px-xl py-md rounded-full hover:opacity-90 transition-all duration-300 flex items-center gap-sm"
+              >
+                Go to Dashboard <ArrowRight size={18} />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/signup"
+                  className="bg-primary text-on-primary font-label-bold text-label-bold px-xl py-md rounded-full hover:opacity-90 transition-all duration-300 flex items-center gap-sm"
+                >
+                  Get Started Free <ArrowRight size={18} />
+                </Link>
+                <Link
+                  to="/login"
+                  className="bg-surface-container-lowest text-primary border border-outline-variant font-label-bold text-label-bold px-xl py-md rounded-full hover:bg-surface-container-low transition-all duration-300"
+                >
+                  Sign In
+                </Link>
+              </>
+            )}
           </div>
         </section>
 

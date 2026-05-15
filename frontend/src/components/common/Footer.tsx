@@ -16,9 +16,9 @@ export default function Footer() {
               Master your tech interviews with AI-driven mock sessions, real-time feedback, and dynamic company paths.
             </p>
             <div className="flex gap-md mt-sm">
-              <a href="#" className="text-secondary hover:text-primary transition-colors"><Globe size={18} strokeWidth={1.5} /></a>
-              <a href="#" className="text-secondary hover:text-primary transition-colors"><MessageCircle size={18} strokeWidth={1.5} /></a>
-              <a href="#" className="text-secondary hover:text-primary transition-colors"><Mail size={18} strokeWidth={1.5} /></a>
+              <Link to="/about" className="text-secondary hover:text-primary transition-colors" title="About Us"><Globe size={18} strokeWidth={1.5} /></Link>
+              <Link to="/blog" className="text-secondary hover:text-primary transition-colors" title="Blog"><MessageCircle size={18} strokeWidth={1.5} /></Link>
+              <Link to="/contact" className="text-secondary hover:text-primary transition-colors" title="Contact Us"><Mail size={18} strokeWidth={1.5} /></Link>
             </div>
           </div>
 
@@ -34,18 +34,18 @@ export default function Footer() {
           {/* Resources */}
           <div className="col-span-1 flex flex-col gap-sm">
             <h4 className="font-label-bold text-label-bold text-primary mb-xs">Resources</h4>
-            <a href="#" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">System Design Guide</a>
-            <a href="#" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Behavioral Questions</a>
-            <a href="#" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Blog</a>
-            <a href="#" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Help Center</a>
+            <Link to="/system-design" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">System Design Guide</Link>
+            <Link to="/behavioral" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Behavioral Questions</Link>
+            <Link to="/blog" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Blog</Link>
+            <Link to="/help" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Help Center</Link>
           </div>
 
           {/* Legal */}
           <div className="col-span-1 flex flex-col gap-sm">
             <h4 className="font-label-bold text-label-bold text-primary mb-xs">Legal</h4>
-            <a href="#" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Terms of Service</a>
-            <a href="#" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Cookie Policy</a>
+            <Link to="/privacy" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Terms of Service</Link>
+            <Link to="/cookie-policy" className="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors">Cookie Policy</Link>
           </div>
         </div>
 
@@ -53,7 +53,8 @@ export default function Footer() {
           <p className="font-label-sm text-label-sm text-secondary">
             © {new Date().getFullYear()} PrepMate AI. All rights reserved.
           </p>
-          <div className="flex gap-lg">
+          <div className="flex gap-lg items-center">
+            <Link to="/careers" className="font-label-sm text-[11px] text-secondary hover:text-primary transition-colors">Careers</Link>
             <span className="font-label-sm text-[11px] text-secondary flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-green-500 inline-block" /> All systems operational
             </span>

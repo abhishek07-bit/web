@@ -12,9 +12,20 @@ export function useVoice(options: UseVoiceOptions = {}) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isEnabled, setIsEnabled] = useState(true);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+
+  useEffect(() => {
+    const loadVoices = () => {
+      setVoices(window.speechSynthesis.getVoices());
+    };
+    loadVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
 
   const getPreferredVoice = useCallback(() => {
-    const voices = window.speechSynthesis.getVoices();
+    if (voices.length === 0) return null;
     if (voiceName) {
       const match = voices.find((v) => v.name.includes(voiceName));
       if (match) return match;
@@ -24,7 +35,7 @@ export function useVoice(options: UseVoiceOptions = {}) {
       (v) => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha'))
     );
     return preferred || voices.find((v) => v.lang.startsWith('en')) || voices[0];
-  }, [voiceName]);
+  }, [voiceName, voices]);
 
   const speak = useCallback(
     (text: string) => {

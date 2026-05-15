@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.services import ai_service
+from app.services.ai_service import AIProviderError
+import os
 
 app = FastAPI(
     title="PrepMate AI API",
@@ -9,22 +12,23 @@ app = FastAPI(
 )
 
 # CORS Middleware
+# Restrict to explicitly allowed origins from environment
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "http://localhost:8001",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5174",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
+@app.exception_handler(AIProviderError)
+async def ai_provider_exception_handler(request, exc: AIProviderError):
+    return JSONResponse(
+        status_code=503,
+        content={"message": "AI Service Unavailable", "detail": str(exc)},
+    )
 
 @app.get("/")
 async def root():

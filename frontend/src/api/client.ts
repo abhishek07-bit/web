@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env?.VITE_API_URL || (import.meta.env?.PROD ? '' : 'http://localhost:8000/api');
+
+if (import.meta.env?.PROD && !API_BASE_URL) {
+  console.error("CRITICAL: VITE_API_URL is not set in production environment variables.");
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -31,7 +35,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('prepmate-auth');
-      window.location.href = '/login';
+      window.dispatchEvent(new Event('auth-unauthorized'));
     }
     return Promise.reject(error);
   }
@@ -58,6 +62,7 @@ export const resumeAPI = {
     });
   },
   analyze: (resumeId: string) => api.post(`/resume/analyze/${resumeId}`),
+  match: (resumeId: string, jobDescription: string) => api.post(`/resume/match/${resumeId}`, { jobDescription }),
   getSkills: () => api.get('/resume/skills'),
 };
 

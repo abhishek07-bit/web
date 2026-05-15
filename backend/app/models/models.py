@@ -29,7 +29,7 @@ class Resume(Base):
     __tablename__ = "resumes"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), index=True, nullable=False)
     file_name = Column(String, nullable=False)
     file_path = Column(String, nullable=False)
     file_size = Column(Integer, nullable=False)
@@ -46,7 +46,7 @@ class InterviewSession(Base):
     __tablename__ = "interview_sessions"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), index=True, nullable=False)
     role = Column(String, nullable=False)
     company = Column(String, nullable=False)
     persona = Column(String, nullable=False)
@@ -65,7 +65,7 @@ class Question(Base):
     __tablename__ = "questions"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    session_id = Column(String, ForeignKey("interview_sessions.id"), nullable=False)
+    session_id = Column(String, ForeignKey("interview_sessions.id"), index=True, nullable=False)
     category = Column(String, nullable=False)
     text = Column(Text, nullable=False)
     sub_prompt = Column(Text, nullable=True)
@@ -95,7 +95,7 @@ class FeedbackReport(Base):
     __tablename__ = "feedback_reports"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    session_id = Column(String, ForeignKey("interview_sessions.id"), nullable=False)
+    session_id = Column(String, ForeignKey("interview_sessions.id"), index=True, nullable=False)
     overall_score = Column(Float, nullable=False)
     overall_assessment = Column(Text, nullable=False)
     strengths = Column(JSON, default=list)
