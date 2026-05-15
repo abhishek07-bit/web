@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Brain, SlidersHorizontal, Search, Building, BarChart3, Gavel, Handshake, Loader2, Target, Zap, ChevronRight, Activity, ShieldAlert } from 'lucide-react';
 import { useInterviewStore } from '../../store/interviewStore';
 import { interviewAPI } from '../../api/client';
+import NeuralLoader from '../../components/common/NeuralLoader';
 
 const POPULAR_ROLES = [
   'Software Engineer', 'Product Manager', 'Data Scientist', 'Frontend Developer', 'Backend Engineer',
@@ -56,6 +57,14 @@ export default function InterviewSetupPage() {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <NeuralLoader message="Calibrating Simulation Chamber..." />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-6 pb-20 animate-fade-in">

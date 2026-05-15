@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { TrendingUp, Calendar, Search, History, Code, Landmark, ArrowRight, Loader2, Zap, ShieldCheck, Target, Sparkles, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useInterviewStore } from '../../store/interviewStore';
+import NeuralLoader from '../../components/common/NeuralLoader';
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
@@ -148,9 +149,7 @@ export default function DashboardPage() {
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="animate-spin text-primary" size={40} />
-            </div>
+            <NeuralLoader message="Synchronizing Neural Profile..." />
           ) : totalSessions === 0 ? (
             <div className="py-20 text-center glass rounded-[40px] border-dashed">
               <p className="font-body-lg text-secondary mb-8">No historical data found in your neural profile.</p>
