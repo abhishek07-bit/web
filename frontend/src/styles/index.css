@@ -48,9 +48,9 @@
     --color-on-primary-fixed: #1b1b1b;
     --color-secondary-fixed: #e3e2e2;
     --color-secondary-fixed-dim: #c7c6c6;
-    /* Elite Spacing & Radii — Compact Mode */
-    --pebble-radius: 12px;
-    --btn-radius: 8px;
+    /* Elite Spacing & Radii — Pro Compact Mode */
+    --pebble-radius: 8px;
+    --btn-radius: 4px;
   }
 
   .dark {
