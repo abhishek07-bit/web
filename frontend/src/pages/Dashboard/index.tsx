@@ -30,7 +30,7 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto w-full px-6 pb-20 animate-fade-in">
       
       {/* Hero Greeting Section */}
-      <header className="pt-12 mb-12 space-y-4 relative">
+      <header className="pt-6 mb-8 space-y-3 relative">
         <div className="flex flex-wrap items-center gap-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-label-bold text-[10px] uppercase tracking-[0.2em]">
             <Zap size={14} />
@@ -41,13 +41,13 @@ export default function DashboardPage() {
             Neural Link: Stable
           </div>
         </div>
-        <h1 className="font-display text-4xl md:text-5xl font-bold text-primary tracking-tight">
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-primary tracking-tight">
           {getGreeting()}, <span className="text-secondary">{firstName}.</span>
         </h1>
-        <p className="font-body-lg text-secondary text-lg max-w-xl leading-relaxed">
+        <p className="font-body-lg text-secondary text-base max-w-lg leading-relaxed">
           {totalSessions === 0 && !loading
-            ? 'Your neural profile is currently baseline.'
-            : `Your readiness is currently at ${avgScore}%.`}
+            ? 'Ready for your next simulation?'
+            : `Your readiness: ${avgScore}%.`}
         </p>
 
         {/* Tactical HUD Overlay */}

@@ -69,20 +69,20 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="glass sticky top-0 z-50 px-8 py-5 border-b border-outline-variant/30 backdrop-blur-xl">
+      <header className="glass sticky top-0 z-50 px-6 py-3 border-b border-outline-variant/30 backdrop-blur-xl">
         <div className="flex justify-between items-center max-w-7xl mx-auto w-full">
           {/* Logo */}
           <div className="flex items-center gap-16">
             <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-4 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg group-hover:blur-xl transition-all" />
-                <div className="relative bg-primary p-2 rounded-xl rotate-3 group-hover:rotate-0 transition-all duration-500 shadow-lg">
-                  <Zap size={22} className="text-on-primary" />
+                <div className="relative bg-primary p-1.5 rounded-lg rotate-3 group-hover:rotate-0 transition-all duration-500 shadow-lg">
+                  <Zap size={18} className="text-on-primary" />
                 </div>
               </div>
               <Shuffle
                 text="PrepMate AI"
-                className="font-display text-3xl tracking-tight text-primary font-bold italic"
+                className="font-display text-xl tracking-tight text-primary font-bold italic"
                 shuffleDirection="down"
                 duration={0.5}
                 stagger={0.05}
