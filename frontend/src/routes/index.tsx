@@ -192,12 +192,12 @@ function RootWrapper() {
   );
 }
 
-// Layout for Static Pages (Landing, Terms, etc.) that need Navbar/Footer but no Auth
-function StaticLayout() {
+// Global Layout for all pages
+function GlobalLayout() {
   return (
     <div className="bg-background text-on-background antialiased min-h-screen flex flex-col selection:bg-primary/20">
       <Navbar />
-      <main className="flex-grow">
+      <main className="flex-grow flex flex-col">
         <Outlet />
       </main>
       <Footer />
@@ -210,7 +210,7 @@ export const router = createBrowserRouter([
     element: <RootWrapper />,
     children: [
       {
-        element: <StaticLayout />,
+        element: <GlobalLayout />,
         children: [
           { path: '/', element: <LandingPage /> },
           { path: '/terms', element: <StaticPage title="Terms of Service" content={TERMS_CONTENT} /> },
@@ -223,26 +223,27 @@ export const router = createBrowserRouter([
           { path: '/contact', element: <StaticPage title="Contact Us" content={CONTACT_CONTENT} /> },
           { path: '/careers', element: <StaticPage title="Careers" content={CAREERS_CONTENT} /> },
           { path: '/about', element: <StaticPage title="About Us" content={ABOUT_CONTENT} /> },
+          
+          {
+            element: <AuthLayout />,
+            children: [
+              { path: 'login', element: <LoginPage /> },
+              { path: 'signup', element: <SignupPage /> },
+            ],
+          },
+          {
+            element: <AppLayout />,
+            children: [
+              { path: 'dashboard', element: <DashboardPage /> },
+              { path: 'resume', element: <ResumeUploadPage /> },
+              { path: 'interview/setup', element: <InterviewSetupPage /> },
+              { path: 'feedback/:id', element: <FeedbackPage /> },
+              { path: 'analytics', element: <AnalyticsPage /> },
+              { path: 'settings', element: <SettingsPage /> },
+              { path: 'company-prep', element: <CompanyPrepPage /> },
+            ],
+          },
         ]
-      },
-      {
-        element: <AuthLayout />,
-        children: [
-          { path: 'login', element: <LoginPage /> },
-          { path: 'signup', element: <SignupPage /> },
-        ],
-      },
-      {
-        element: <AppLayout />,
-        children: [
-          { path: 'dashboard', element: <DashboardPage /> },
-          { path: 'resume', element: <ResumeUploadPage /> },
-          { path: 'interview/setup', element: <InterviewSetupPage /> },
-          { path: 'feedback/:id', element: <FeedbackPage /> },
-          { path: 'analytics', element: <AnalyticsPage /> },
-          { path: 'settings', element: <SettingsPage /> },
-          { path: 'company-prep', element: <CompanyPrepPage /> },
-        ],
       },
       {
         element: <InterviewLayout />,

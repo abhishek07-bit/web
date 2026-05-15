@@ -1,16 +1,12 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, FileText, Target, Activity, ShieldCheck, Cpu, BarChart3, ChevronRight, Globe, Layers } from 'lucide-react';
-import Navbar from '../../components/common/Navbar';
-import Footer from '../../components/common/Footer';
 import { useAuthStore } from '../../store/authStore';
 
 export default function LandingPage() {
   const { user } = useAuthStore();
 
   return (
-    <div className="bg-background text-on-background antialiased min-h-screen flex flex-col selection:bg-primary/20">
-      <Navbar />
-
+    <div className="flex-grow flex flex-col selection:bg-primary/20">
       <main className="flex-grow flex flex-col">
         
         {/* Elite Hero Section */}
@@ -146,8 +142,6 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }
