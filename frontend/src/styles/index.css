@@ -151,7 +151,7 @@
 @layer utilities {
   /* Elite Glassmorphism */
   .glass {
-    @apply bg-white/40 dark:bg-black/40 backdrop-blur-2xl border border-outline-variant/30;
+    @apply bg-white/40 dark:bg-black/40 backdrop-blur-2xl border border-outline-variant border-opacity-30;
   }
   
   .glass-card {
