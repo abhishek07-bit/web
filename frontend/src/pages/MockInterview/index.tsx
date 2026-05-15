@@ -154,7 +154,7 @@ export default function MockInterviewPage() {
   if (!currentQuestion) return null;
 
   return (
-    <div className="flex-1 flex flex-col max-w-6xl mx-auto w-full px-6 relative h-screen overflow-hidden animate-fade-in py-4">
+    <div className="flex-1 flex flex-col max-w-6xl mx-auto w-full px-6 relative min-h-screen animate-fade-in py-4">
       
       {/* Simulation HUD */}
       <header className="w-full pt-4 flex flex-col gap-3 relative z-30">
