@@ -22,33 +22,33 @@ export default function LandingPage() {
             <span className="font-label-bold text-[10px] text-primary uppercase tracking-[0.3em]">Neural Link Protocol Active</span>
           </div>
           
-          <h1 className="font-display text-6xl md:text-8xl font-bold text-primary max-w-5xl mb-10 leading-[1.05] tracking-tight animate-slide-up">
+          <h1 className="font-display text-4xl md:text-6xl font-bold text-primary max-w-4xl mb-8 leading-[1.1] tracking-tight animate-slide-up">
             Master the Interview with <span className="text-secondary italic">Quiet Intelligence.</span>
           </h1>
           
-          <p className="font-body-lg text-secondary text-xl md:text-2xl max-w-3xl mb-16 leading-relaxed animate-slide-up" style={{ animationDelay: '0.1s' }}>
+          <p className="font-body-lg text-secondary text-lg md:text-xl max-w-2xl mb-12 leading-relaxed animate-slide-up" style={{ animationDelay: '0.1s' }}>
             A disciplined, neural-first approach to career mastery. Elevate your narrative through adaptive logic and precise performance engineering.
           </p>
           
-          <div className="flex gap-6 flex-wrap justify-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <div className="flex gap-4 flex-wrap justify-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
             {user ? (
               <Link
                 to="/dashboard"
-                className="bg-primary text-on-primary font-display text-lg font-bold px-12 py-5 rounded-[24px] shadow-2xl shadow-primary/30 hover:scale-[1.02] hover:-translate-y-1 transition-all flex items-center gap-3 group"
+                className="bg-primary text-on-primary font-display text-base font-bold px-10 py-4 rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] hover:-translate-y-1 transition-all flex items-center gap-3 group"
               >
-                Go to Command Center <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
+                Go to Command Center <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             ) : (
               <>
                 <Link
                   to="/signup"
-                  className="bg-primary text-on-primary font-display text-lg font-bold px-12 py-5 rounded-[24px] shadow-2xl shadow-primary/30 hover:scale-[1.02] hover:-translate-y-1 transition-all flex items-center gap-3 group"
+                  className="bg-primary text-on-primary font-display text-base font-bold px-10 py-4 rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] hover:-translate-y-1 transition-all flex items-center gap-3 group"
                 >
-                  Initiate Prep <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
+                  Initiate Prep <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   to="/login"
-                  className="glass text-primary border border-primary/20 font-display text-lg font-bold px-12 py-5 rounded-[24px] hover:bg-white/40 transition-all"
+                  className="glass text-primary border border-primary/20 font-display text-base font-bold px-10 py-4 rounded-xl hover:bg-white/40 transition-all"
                 >
                   Sign In
                 </Link>
@@ -58,11 +58,11 @@ export default function LandingPage() {
         </section>
 
         {/* Protocol Matrix (How It Works) */}
-        <section className="w-full max-w-7xl mx-auto px-6 py-32">
-          <div className="flex flex-col md:flex-row justify-between items-end gap-10 mb-20 border-b border-outline-variant/30 pb-12">
-            <div className="space-y-4">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-primary tracking-tight">System Protocols.</h2>
-              <p className="font-body-lg text-secondary text-xl max-w-xl">The three-stage neural architecture for interview dominance.</p>
+        <section className="w-full max-w-7xl mx-auto px-6 py-24">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-10 mb-16 border-b border-outline-variant/30 pb-8">
+            <div className="space-y-3">
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary tracking-tight">System Protocols.</h2>
+              <p className="font-body-lg text-secondary text-lg max-w-xl">The three-stage neural architecture for interview dominance.</p>
             </div>
             <div className="text-[10px] font-bold text-outline uppercase tracking-[0.3em]">Operational Readiness 100%</div>
           </div>
@@ -75,13 +75,13 @@ export default function LandingPage() {
             ].map((card, i) => {
               const Icon = card.icon;
               return (
-                <div key={card.title} className="glass rounded-[40px] p-10 flex flex-col group hover:bg-white/40 transition-all duration-500 shadow-premium">
-                  <div className={`w-16 h-16 rounded-[22px] bg-${card.color}/10 border border-${card.color}/20 flex items-center justify-center mb-10 group-hover:scale-110 transition-transform`}>
-                    <Icon size={28} className={`text-${card.color}`} />
+                <div key={card.title} className="glass rounded-[32px] p-8 flex flex-col group hover:bg-white/40 transition-all duration-500 shadow-premium">
+                  <div className={`w-14 h-14 rounded-xl bg-${card.color}/10 border border-${card.color}/20 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
+                    <Icon size={24} className={`text-${card.color}`} />
                   </div>
-                  <span className="font-label-bold text-[10px] text-outline uppercase tracking-[0.3em] mb-3">{card.step}</span>
-                  <h3 className="font-display text-2xl font-bold text-primary mb-6 tracking-tight">{card.title}</h3>
-                  <p className="font-body-md text-secondary leading-relaxed text-lg italic opacity-80 group-hover:opacity-100 transition-opacity">"{card.desc}"</p>
+                  <span className="font-label-bold text-[9px] text-outline uppercase tracking-[0.3em] mb-2">{card.step}</span>
+                  <h3 className="font-display text-xl font-bold text-primary mb-4 tracking-tight">{card.title}</h3>
+                  <p className="font-body-md text-secondary leading-relaxed text-base italic opacity-80 group-hover:opacity-100 transition-opacity">"{card.desc}"</p>
                 </div>
               );
             })}

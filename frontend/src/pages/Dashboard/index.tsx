@@ -41,13 +41,13 @@ export default function DashboardPage() {
             Neural Link: Stable
           </div>
         </div>
-        <h1 className="font-display text-5xl md:text-6xl font-bold text-primary tracking-tight">
+        <h1 className="font-display text-4xl md:text-5xl font-bold text-primary tracking-tight">
           {getGreeting()}, <span className="text-secondary">{firstName}.</span>
         </h1>
-        <p className="font-body-lg text-secondary text-xl max-w-2xl leading-relaxed">
+        <p className="font-body-lg text-secondary text-lg max-w-xl leading-relaxed">
           {totalSessions === 0 && !loading
-            ? 'Your neural profile is currently baseline. Engage in a simulation to start your growth.'
-            : `Your readiness is currently at ${avgScore}%. Focus on technical depth to reach elite status.`}
+            ? 'Your neural profile is currently baseline.'
+            : `Your readiness is currently at ${avgScore}%.`}
         </p>
 
         {/* Tactical HUD Overlay */}
@@ -70,11 +70,11 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* Readiness Hero Card */}
-        <section className="lg:col-span-8 glass rounded-[40px] p-10 shadow-premium relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+        <section className="lg:col-span-8 glass rounded-[32px] p-8 shadow-premium relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
           
-          <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-            <div className="relative w-48 h-48 flex items-center justify-center shrink-0 neural-pulse">
+          <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
+            <div className="relative w-36 h-36 flex items-center justify-center shrink-0 neural-pulse">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                 <circle className="text-outline-variant/30" cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="2" />
                 <circle 
@@ -85,26 +85,26 @@ export default function DashboardPage() {
                 />
               </svg>
               <div className="absolute flex flex-col items-center">
-                <span className="font-display text-5xl font-bold text-primary">{loading ? '—' : `${avgScore}%`}</span>
-                <span className="text-[10px] font-label-bold text-secondary uppercase tracking-widest">Readiness</span>
+                <span className="font-display text-3xl font-bold text-primary">{loading ? '—' : `${avgScore}%`}</span>
+                <span className="text-[9px] font-label-bold text-secondary uppercase tracking-widest">Readiness</span>
               </div>
             </div>
 
-            <div className="flex-1 space-y-6">
-              <div className="flex items-center gap-3 text-primary">
-                <TrendingUp size={24} />
-                <h3 className="font-display text-2xl font-bold">Neural Readiness Index</h3>
+            <div className="flex-1 space-y-4">
+              <div className="flex items-center gap-2 text-primary">
+                <TrendingUp size={20} />
+                <h3 className="font-display text-xl font-bold">Neural Readiness Index</h3>
               </div>
-              <p className="font-body-md text-secondary leading-relaxed">
-                Based on your last {totalSessions} simulations, you have shown a strong foundation in logic. Target your next simulation at 90% to level up.
+              <p className="font-body-md text-secondary leading-relaxed text-sm">
+                Based on your last {totalSessions} simulations.
               </p>
               <div className="pt-4 border-t border-outline-variant/30 flex justify-between items-center">
-                <div className="flex items-center gap-2 text-primary font-label-bold text-xs uppercase tracking-widest">
-                  <ShieldCheck size={16} />
+                <div className="flex items-center gap-2 text-primary font-label-bold text-[10px] uppercase tracking-widest">
+                  <ShieldCheck size={14} />
                   Status: {avgScore >= 80 ? 'Exceptional' : 'Advancing'}
                 </div>
-                <Link to="/analytics" className="text-secondary font-label-bold text-[10px] uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-1">
-                  View Full Intel <ChevronRight size={12} />
+                <Link to="/analytics" className="text-secondary font-label-bold text-[9px] uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-1">
+                  Details <ChevronRight size={10} />
                 </Link>
               </div>
             </div>
