@@ -219,4 +219,3 @@ async def get_company_prep(
     # Real AI company prep guide
     prep = await ai_service.generate_company_prep(company_name)
     return prep
-    return prep
